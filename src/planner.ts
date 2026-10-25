@@ -104,18 +104,18 @@ export function gapRoles(issues: readonly StaffingIssue[]): Role[] {
 export { LINE_IDS };
 
 const SHORT: Record<string, string> = {
-  'primary-missing': 'No Primary',
-  'line-leader-missing': 'No Line Leader',
-  'secondary-missing': 'No Secondary',
-  'person-absent': 'Absent person assigned',
-  'not-qualified': 'Not qualified',
-  'double-booked': 'Double-booked',
-  'primary-surplus': 'More than 1 Primary',
-  'secondary-below-optimal': 'Only 1 Secondary',
-  'stand-in': 'Stand-in',
+  'primary-missing': 'Kein Primär',
+  'line-leader-missing': 'Kein Linienleiter',
+  'secondary-missing': 'Kein Sekundär',
+  'person-absent': 'Abwesende Person eingeteilt',
+  'not-qualified': 'Nicht qualifiziert',
+  'double-booked': 'Doppelt eingeteilt',
+  'primary-surplus': 'Mehr als 1 Primär',
+  'secondary-below-optimal': 'Nur 1 Sekundär',
+  'stand-in': 'Vertretung',
 };
 
-/** A few words describing the worst problem of a line, e.g. "No Primary". */
+/** A few words describing the worst problem of a line, e.g. "Kein Primär". */
 export function shortReason(issues: readonly StaffingIssue[]): string {
   const pick = (sev: StaffingIssue['severity']) => issues.filter((i) => i.severity === sev);
   const top = pick('error')[0] ?? pick('warning')[0];
@@ -161,7 +161,7 @@ export function lineSlots(view: ShiftView, line: LineId): Record<Role, Slot[]> {
       // A missing mechanic on one line is covered by the shift-wide mechanic rule.
       slots.push({ role, state: 'missing', severity: role === 'mechanic' ? 'warning' : 'error' });
     } else if (role === 'secondary' && slots.length === 1) {
-      slots.push({ role, state: 'optional', severity: 'warning', note: '2nd Secondary (optimal)' });
+      slots.push({ role, state: 'optional', severity: 'warning', note: '2. Sekundär (optimal)' });
     }
     out[role] = slots;
   }
@@ -169,7 +169,7 @@ export function lineSlots(view: ShiftView, line: LineId): Record<Role, Slot[]> {
 }
 
 export function chipText(errors: number, warnings: number) {
-  if (errors > 0) return { status: 'error' as const, icon: '✕', text: `${errors} err` };
-  if (warnings > 0) return { status: 'warning' as const, icon: '!', text: `${warnings} warn` };
+  if (errors > 0) return { status: 'error' as const, icon: '✕', text: `${errors} Fehl.` };
+  if (warnings > 0) return { status: 'warning' as const, icon: '!', text: `${warnings} Warn.` };
   return { status: 'ok' as const, icon: '✓', text: 'OK' };
 }

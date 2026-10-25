@@ -1,6 +1,6 @@
 import { absenceOn } from './availability';
 import { isWorkingDay } from './calendar';
-import { LINE_TARGETS, MECHANICS_PER_SHIFT, ROLE_LABELS } from './constants';
+import { ABSENCE_LABELS, LINE_TARGETS, MECHANICS_PER_SHIFT, ROLE_LABELS } from './constants';
 import { qualificationFor } from './qualifications';
 import { stlOnDuty } from './stl';
 import {
@@ -72,7 +72,7 @@ export function checkLine(
         code: 'unknown-person',
         line,
         personId: a.personId,
-        message: `Unknown person ${a.personId} assigned as ${label}`,
+        message: `Unbekannte Person ${a.personId} als ${label} eingeteilt`,
       });
       continue;
     }
@@ -83,7 +83,7 @@ export function checkLine(
         code: 'person-absent',
         line,
         personId: person.id,
-        message: `${person.name} is absent (${absence.type}) but assigned as ${label}`,
+        message: `${person.name} ist abwesend (${ABSENCE_LABELS[absence.type]}), aber als ${label} eingeteilt`,
       });
       continue;
     }
@@ -110,15 +110,15 @@ export function checkLine(
     counts[a.role] += 1;
   }
 
-  const L = `Line ${line}`;
+  const L = `Linie ${line}`;
   if (counts.primary === 0) {
-    issues.push({ severity: 'error', code: 'primary-missing', line, message: `${L}: no Primary` });
+    issues.push({ severity: 'error', code: 'primary-missing', line, message: `${L}: kein Primär` });
   } else if (counts.primary > LINE_TARGETS.primary.exact) {
     issues.push({
       severity: 'warning',
       code: 'primary-surplus',
       line,
-      message: `${L}: ${counts.primary} Primaries (exactly 1 expected)`,
+      message: `${L}: ${counts.primary} Primär (genau 1 erwartet)`,
     });
   }
   if (counts.secondary < LINE_TARGETS.secondary.min) {
@@ -126,14 +126,14 @@ export function checkLine(
       severity: 'error',
       code: 'secondary-missing',
       line,
-      message: `${L}: no Secondary`,
+      message: `${L}: kein Sekundär`,
     });
   } else if (counts.secondary < LINE_TARGETS.secondary.optimal) {
     issues.push({
       severity: 'warning',
       code: 'secondary-below-optimal',
       line,
-      message: `${L}: 1 Secondary (2 is optimal)`,
+      message: `${L}: 1 Sekundär (2 sind optimal)`,
     });
   }
   if (counts.lineLeader < LINE_TARGETS.lineLeader.min) {
@@ -141,7 +141,7 @@ export function checkLine(
       severity: 'error',
       code: 'line-leader-missing',
       line,
-      message: `${L}: no Line Leader`,
+      message: `${L}: kein Linienleiter`,
     });
   }
   if (counts.mechanic < LINE_TARGETS.mechanic.ideal) {
@@ -149,7 +149,7 @@ export function checkLine(
       severity: 'info',
       code: 'mechanic-not-on-line',
       line,
-      message: `${L}: no dedicated Mechanic`,
+      message: `${L}: kein eigener Mechaniker`,
     });
   }
   return issues;
@@ -165,7 +165,7 @@ export function checkShift(date: IsoDate, shift: ShiftType, ctx: StaffingContext
       issues.push({
         severity: 'error',
         code: 'non-working-day',
-        message: `${date} is not a working day, but ${slot.length} assignment(s) exist`,
+        message: `${date} ist kein Arbeitstag, aber es gibt ${slot.length} Einteilung(en)`,
       });
     }
     return summarize(date, shift, issues);
@@ -182,7 +182,7 @@ export function checkShift(date: IsoDate, shift: ShiftType, ctx: StaffingContext
         severity: 'error',
         code: 'double-booked',
         personId,
-        message: `${name} is assigned ${n} times in this shift`,
+        message: `${name} ist in dieser Schicht ${n}-mal eingeteilt`,
       });
     }
   }
@@ -196,20 +196,20 @@ export function checkShift(date: IsoDate, shift: ShiftType, ctx: StaffingContext
     issues.push({
       severity: 'error',
       code: 'mechanics-below-min',
-      message: `Only ${mechanics} Mechanic(s) on shift (minimum ${MECHANICS_PER_SHIFT.min})`,
+      message: `Nur ${mechanics} Mechaniker in der Schicht (Minimum ${MECHANICS_PER_SHIFT.min})`,
     });
   } else if (mechanics < MECHANICS_PER_SHIFT.ideal) {
     issues.push({
       severity: 'warning',
       code: 'mechanics-below-ideal',
-      message: `${mechanics} Mechanics on shift (ideal ${MECHANICS_PER_SHIFT.ideal}, one per line)`,
+      message: `${mechanics} Mechaniker in der Schicht (ideal ${MECHANICS_PER_SHIFT.ideal}, einer pro Linie)`,
     });
   }
   // STL check only applies when the data models STLs at all.
   if (ctx.people.some((p) => p.roles.includes('stl'))) {
     const stl = stlOnDuty(date, shift, ctx.people, ctx.absences);
     if (!stl.present) {
-      issues.push({ severity: 'warning', code: 'stl-missing', message: 'No STL on duty' });
+      issues.push({ severity: 'warning', code: 'stl-missing', message: 'Kein STL im Dienst' });
     }
   }
   return summarize(date, shift, issues);

@@ -6,10 +6,10 @@ const store = (v: string | null) => ({ getItem: (k: string) => (k === LINE_NAMES
 describe('line name settings', () => {
   it('defaults to Line 1-4', () => {
     expect(defaultLineNames()).toEqual({
-      '1': 'Line 1',
-      '2': 'Line 2',
-      '3': 'Line 3',
-      '4': 'Line 4',
+      '1': 'Linie 1',
+      '2': 'Linie 2',
+      '3': 'Linie 3',
+      '4': 'Linie 4',
     });
     expect(loadLineNames(store(null))).toEqual(defaultLineNames());
   });

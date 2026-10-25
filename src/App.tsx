@@ -91,20 +91,20 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
     <div className="app">
       <header className="topbar">
         <div>
-          <h1>Shift Planner Demo</h1>
-          <p className="sub">{COMPANY_NAME} · fictional demo data</p>
+          <h1>Schichtplaner Demo</h1>
+          <p className="sub">{COMPANY_NAME} · fiktive Demodaten</p>
         </div>
         <div className="topbar-actions">
           <SettingsPanel names={names} onChange={update} onReset={resetNames} />
           <button type="button" className="btn" onClick={reset}>
-            Load demo data / Reset
+            Demodaten laden / Zurücksetzen
           </button>
         </div>
       </header>
 
-      <nav className="weeknav" aria-label="Week navigation">
+      <nav className="weeknav" aria-label="Wochennavigation">
         <button type="button" className="btn" onClick={() => goTo(addDays(weekStart, -7))}>
-          ← Previous week
+          ← Vorherige Woche
         </button>
         <button
           type="button"
@@ -112,25 +112,26 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
           onClick={() => goTo(thisWeek)}
           disabled={weekStart === thisWeek}
         >
-          This week
+          Diese Woche
         </button>
         <button type="button" className="btn" onClick={() => goTo(addDays(weekStart, 7))}>
-          Next week →
+          Nächste Woche →
         </button>
         <h2 className="weeklabel" aria-live="polite">
-          Week {isoWeek(weekStart)}: {longDate(weekStart)} – {longDate(addDays(weekStart, 4))}
+          KW {isoWeek(weekStart)}: {longDate(weekStart)} – {longDate(addDays(weekStart, 4))}
         </h2>
       </nav>
 
       <p className="summary" aria-live="polite">
-        <StatusBadge status={chipText(totals.e, totals.w).status} /> This week: {totals.e} errors,{' '}
-        {totals.w} warnings
-        {accepted.length > 0 && ` · ${accepted.length} cover(s) added by you (not saved yet)`}
+        <StatusBadge status={chipText(totals.e, totals.w).status} /> Diese Woche: {totals.e} Fehler,{' '}
+        {totals.w} Warnungen
+        {accepted.length > 0 &&
+          ` · ${accepted.length} Vertretung(en) von dir hinzugefügt (noch nicht gespeichert)`}
       </p>
 
       <WeekStrip weekStart={weekStart} views={views} selected={{ date, shift }} onSelect={select} />
 
-      <div className="tabs" role="group" aria-label="Day">
+      <div className="tabs" role="group" aria-label="Tag">
         {dates.map((d, i) => (
           <button
             key={d}
@@ -143,7 +144,7 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
           </button>
         ))}
       </div>
-      <div className="tabs" role="group" aria-label="Shift">
+      <div className="tabs" role="group" aria-label="Schicht">
         {SHIFT_TYPES.map((s) => (
           <button
             key={s}
@@ -164,7 +165,7 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
             <h2 className="shift-title">
               <span aria-hidden="true">{SHIFT_ICONS[shift]}</span> {dayLabel(date)} ·{' '}
               {SHIFTS[shift].label} {SHIFTS[shift].start}–{SHIFTS[shift].end} ·{' '}
-              {crewName(view.crew)} on duty
+              {crewName(view.crew)} im Dienst
             </h2>
             <StlBadge stl={stl} />
           </div>
@@ -212,9 +213,12 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
 
       <footer className="foot">
         <p>
-          <strong>Note:</strong> {ROTATION_NOTE}
+          <strong>Hinweis:</strong> {ROTATION_NOTE}
         </p>
-        <p>All people and the company are fictional. Changes are kept in memory only for now.</p>
+        <p>
+          Alle Personen und die Firma sind fiktiv. Änderungen werden vorerst nur im Speicher
+          gehalten.
+        </p>
       </footer>
     </div>
   );

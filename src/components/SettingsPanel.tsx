@@ -10,10 +10,12 @@ interface Props {
 export function SettingsPanel({ names, onChange, onReset }: Props) {
   return (
     <details className="settings">
-      <summary>Settings</summary>
+      <summary>Einstellungen</summary>
       <fieldset>
-        <legend>Line names</legend>
-        <p className="hint">Saved in this browser only (localStorage). Not shared or uploaded.</p>
+        <legend>Liniennamen</legend>
+        <p className="hint">
+          Nur in diesem Browser gespeichert (localStorage). Wird nicht geteilt oder hochgeladen.
+        </p>
         {LINES.map((l) => (
           <label key={l.id} className="field">
             {l.name}{' '}
@@ -26,7 +28,7 @@ export function SettingsPanel({ names, onChange, onReset }: Props) {
           </label>
         ))}
         <button type="button" className="btn" onClick={onReset}>
-          Reset line names
+          Liniennamen zurücksetzen
         </button>
       </fieldset>
     </details>

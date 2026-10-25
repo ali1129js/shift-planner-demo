@@ -11,9 +11,9 @@ export const ROTATION_ORDER: readonly ShiftType[] = ['early', 'night', 'late'];
 export const ROTATION_EPOCH: IsoDate = '2026-01-05';
 
 export const ROTATION_NOTE =
-  'This plan uses a backward rotation (Early -> Night -> Late). Occupational-health guidance ' +
-  'generally recommends forward rotation (Early -> Late -> Night), which gives more rest ' +
-  'between blocks. Shown for information only; not enforced.';
+  'Dieser Plan nutzt eine Rückwärtsrotation (Früh -> Nacht -> Spät). Arbeitsmedizinische ' +
+  'Empfehlungen raten meist zur Vorwärtsrotation (Früh -> Spät -> Nacht), die mehr Erholung ' +
+  'zwischen den Blöcken bietet. Nur zur Information; wird nicht erzwungen.';
 
 export function weekNumberSinceEpoch(date: IsoDate, epoch: IsoDate = ROTATION_EPOCH): number {
   return Math.floor(daysBetween(mondayOf(epoch), mondayOf(date)) / 7);
@@ -32,7 +32,7 @@ export function shiftForCrew(
   const crewIndex = CREW_IDS.indexOf(crewId);
   const week = weekNumberSinceEpoch(date, epoch);
   const shift = ROTATION_ORDER[mod(crewIndex + week, ROTATION_ORDER.length)];
-  if (!shift) throw new Error('Rotation order is empty');
+  if (!shift) throw new Error('Rotationsreihenfolge ist leer');
   return shift;
 }
 

@@ -53,7 +53,7 @@ export function suggestCover(req: CoverRequest, ctx: CoverContext): CoverSuggest
     if (!sameCrew) {
       const own = SHIFTS[shiftForCrew(person.crewId, req.date)].label;
       const crewName = CREWS.find((c) => c.id === person.crewId)?.name ?? person.crewId;
-      notes.push(`${crewName} works ${own} this week - check rest time and overtime`);
+      notes.push(`${crewName} arbeitet diese Woche ${own} - Ruhezeit und Überstunden prüfen`);
     }
     if (q.kind === 'stand-in') notes.push(q.reason);
 

@@ -1,12 +1,12 @@
 import { parseIsoDate } from '../domain';
 
-const fmt = new Intl.DateTimeFormat('en-GB', {
+const fmt = new Intl.DateTimeFormat('de-DE', {
   weekday: 'short',
   day: '2-digit',
   month: 'short',
   timeZone: 'UTC',
 });
-const fmtYear = new Intl.DateTimeFormat('en-GB', {
+const fmtYear = new Intl.DateTimeFormat('de-DE', {
   day: '2-digit',
   month: 'short',
   year: 'numeric',

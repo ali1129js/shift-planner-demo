@@ -10,7 +10,23 @@ A small shift-planning tool for a fictional three-shift production plant,
 > **Built with AI-assisted development.** The code was written with the help of an AI
 > coding assistant and reviewed, tested and directed by me.
 
-![Planner: one shift with Line 1-4 cards, a week status strip, and an empty Line Leader slot flagged as an error](docs/planner.png)
+![Planer (deutsche Oberfläche): eine Schicht mit den Karten Linie 1-4, STL-Badge und Wochenstatusleiste](docs/planner.png)
+
+## Deutsch
+
+Die Oberfläche der App ist auf Deutsch. Ein kleiner Schichtplaner für ein fiktives
+Dreischicht-Werk (**Demo Packaging GmbH**) mit vier Verpackungslinien (Linie 1 bis Linie 4)
+und den Schichten Früh, Spät und Nacht.
+
+- **Wochenleiste:** 15 Felder (Mo-Fr x Früh/Spät/Nacht) zeigen den Status jeder Schicht
+  mit Symbol und Text (✓ OK, ! Warn., ✕ Fehl.). Ein Klick öffnet die Schicht.
+- **Linienkarten:** feste Zeilen für Linienleiter, Mechaniker, Primär und Sekundär (1-2).
+  Leere Plätze zeigen **„— fehlt“** und gelten als Fehler.
+- **STL-Badge:** zeigt den STL im Dienst oder die Warnung „Kein STL im Dienst“.
+- **Vertretung:** Ein Klick auf einen Platz öffnet Vertretungsvorschläge. Die App schlägt nur
+  vor; die Planerin bzw. der Planer entscheidet mit _Übernehmen_.
+- **Einstellungen → Liniennamen:** nur im `localStorage` dieses Browsers gespeichert.
+- Alle Personen und die Firma sind fiktiv. Übernommene Vertretungen liegen nur im Speicher.
 
 ## Why
 

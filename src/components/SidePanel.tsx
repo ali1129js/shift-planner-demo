@@ -29,10 +29,10 @@ interface Props {
 }
 
 const TIER_LABEL = [
-  'Same role, same crew',
-  'Same role, other crew',
-  'Stand-in',
-  'Stand-in (last resort)',
+  'Gleiche Rolle, gleiche Gruppe',
+  'Gleiche Rolle, andere Gruppe',
+  'Vertretung',
+  'Vertretung (letzter Ausweg)',
 ];
 
 export function SidePanel({
@@ -66,7 +66,7 @@ export function SidePanel({
   }, [onClose]);
 
   // Domain messages start with the line number; the panel already names the line.
-  const clean = (m: string) => m.replace(/^Line \d+: /, '');
+  const clean = (m: string) => m.replace(/^Linie \d+: /, '');
 
   const byId = new Map(people.map((p) => [p.id, p]));
   const onLine = view.assignments.filter((a) => a.line === line);
@@ -92,26 +92,26 @@ export function SidePanel({
         <h2 id="panel-title" tabIndex={-1} ref={headingRef}>
           {lineName} · {SHIFTS[view.shift].label} · {dayLabel(view.date)}
         </h2>
-        <button type="button" className="btn" onClick={onClose} aria-label="Close details">
-          Close
+        <button type="button" className="btn" onClick={onClose} aria-label="Details schließen">
+          Schließen
         </button>
       </div>
       <p>
-        {crewName(view.crew)} on duty. <StatusBadge status={statusOf(issues)} />
+        {crewName(view.crew)} im Dienst. <StatusBadge status={statusOf(issues)} />
       </p>
 
-      <h3>Assigned</h3>
+      <h3>Eingeteilt</h3>
       <ul className="plain">
-        {onLine.length === 0 && <li>Nobody assigned.</li>}
+        {onLine.length === 0 && <li>Niemand eingeteilt.</li>}
         {onLine.map((a) => (
           <li key={`${a.personId}-${a.role}`}>
             <strong>{ROLE_LABELS[a.role]}:</strong> {byId.get(a.personId)?.name ?? a.personId}
             {isAccepted(a) && (
               <>
                 {' '}
-                <span className="tag">added by planner</span>{' '}
+                <span className="tag">vom Planer hinzugefügt</span>{' '}
                 <button type="button" className="btn btn-small" onClick={() => onRemove(a)}>
-                  Remove
+                  Entfernen
                 </button>
               </>
             )}
@@ -119,9 +119,9 @@ export function SidePanel({
         ))}
       </ul>
 
-      <h3>Rule check</h3>
+      <h3>Regelprüfung</h3>
       <ul className="plain">
-        {issues.length === 0 && <li>All rules met for this line.</li>}
+        {issues.length === 0 && <li>Alle Regeln für diese Linie erfüllt.</li>}
         {issues.map((i, n) => (
           <li key={n}>
             <StatusBadge status={i.severity} /> {clean(i.message)}
@@ -129,28 +129,30 @@ export function SidePanel({
         ))}
         {shiftWide.map((i, n) => (
           <li key={`s${n}`}>
-            <StatusBadge status={i.severity} /> Shift: {i.message}
+            <StatusBadge status={i.severity} /> Schicht: {i.message}
           </li>
         ))}
       </ul>
 
-      <h3>Cover suggestions</h3>
-      <p className="hint">The app only suggests. You, the planner, decide who covers.</p>
+      <h3>Vertretungsvorschläge</h3>
+      <p className="hint">
+        Die App macht nur Vorschläge. Du als Planer entscheidest, wer vertritt.
+      </p>
       <label className="field">
-        Role to cover{' '}
+        Zu besetzende Rolle{' '}
         <select value={role} onChange={(e) => setRole(e.target.value as Role)}>
           {LINE_ROLES.map((r) => (
             <option key={r} value={r}>
               {ROLE_LABELS[r]}
-              {gaps.includes(r) ? ' (gap)' : ''}
+              {gaps.includes(r) ? ' (Lücke)' : ''}
             </option>
           ))}
         </select>
       </label>
       {suggestions.length === 0 ? (
-        <p>No available, qualified people found.</p>
+        <p>Keine verfügbaren, qualifizierten Personen gefunden.</p>
       ) : (
-        <ol className="suggestions" aria-label="Ranked cover suggestions">
+        <ol className="suggestions" aria-label="Sortierte Vertretungsvorschläge">
           {suggestions.slice(0, 8).map((s) => (
             <li key={s.person.id}>
               <div>
@@ -167,7 +169,7 @@ export function SidePanel({
               <button
                 type="button"
                 className="btn btn-primary"
-                aria-label={`Accept ${s.person.name} as ${ROLE_LABELS[role]} on ${lineName}`}
+                aria-label={`${s.person.name} als ${ROLE_LABELS[role]} auf ${lineName} übernehmen`}
                 onClick={() =>
                   onAccept({
                     date: view.date,
@@ -178,7 +180,7 @@ export function SidePanel({
                   })
                 }
               >
-                Accept
+                Übernehmen
               </button>
             </li>
           ))}

@@ -4,8 +4,8 @@ type BadgeStatus = Status | 'info';
 
 const META: Record<BadgeStatus, { icon: string; label: string }> = {
   ok: { icon: '✓', label: 'OK' },
-  warning: { icon: '!', label: 'Warning' },
-  error: { icon: '✕', label: 'Error' },
+  warning: { icon: '!', label: 'Warnung' },
+  error: { icon: '✕', label: 'Fehler' },
   info: { icon: 'i', label: 'Info' },
 };
 

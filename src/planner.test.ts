@@ -75,6 +75,6 @@ describe('line slots', () => {
         { severity: 'warning', code: 'secondary-below-optimal', message: '' },
         { severity: 'error', code: 'primary-missing', message: '' },
       ]),
-    ).toBe('No Primary +1');
+    ).toBe('Kein Primär +1');
   });
 });

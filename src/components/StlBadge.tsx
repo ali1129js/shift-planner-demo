@@ -4,7 +4,7 @@ import type { StlOnDuty } from '../domain';
 export function StlBadge({ stl }: { stl: StlOnDuty | undefined }) {
   if (stl?.stl && stl.present) {
     return (
-      <p className="stl stl-present" role="note" aria-label={`STL on duty: ${stl.stl.name}`}>
+      <p className="stl stl-present" role="note" aria-label={`STL im Dienst: ${stl.stl.name}`}>
         <span className="stl-label">STL</span>
         <span className="stl-name">{stl.stl.name}</span>
       </p>
@@ -15,13 +15,13 @@ export function StlBadge({ stl }: { stl: StlOnDuty | undefined }) {
     <p
       className="stl stl-absent"
       role="note"
-      aria-label={`Warning: No STL on duty${name ? `, ${name} is absent` : ''}`}
+      aria-label={`Warnung: Kein STL im Dienst${name ? `, ${name} ist abwesend` : ''}`}
     >
       <span className="stl-label">
         <span aria-hidden="true">! </span>STL
       </span>
-      <span className="stl-name">No STL on duty</span>
-      {name && <span className="stl-absent-name">{name} (absent)</span>}
+      <span className="stl-name">Kein STL im Dienst</span>
+      {name && <span className="stl-absent-name">{name} (abwesend)</span>}
     </p>
   );
 }

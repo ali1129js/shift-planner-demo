@@ -9,8 +9,10 @@ import { LINE_NAMES_KEY } from './settings';
 const TODAY = '2026-10-26'; // Monday, week 44
 
 const chips = () =>
-  screen.getAllByRole('button', { name: /^(Mon|Tue|Wed|Thu|Fri) \d\d \w{3} (Early|Late|Night): / });
-const cards = () => screen.getAllByRole('region', { name: /^Line \d|^.+: (OK|warning|error)/ });
+  screen.getAllByRole('button', {
+    name: /^(Mo|Di|Mi|Do|Fr)\., \d\d\. \w{3}\. (Früh|Spät|Nacht): /,
+  });
+const cards = () => screen.getAllByRole('region', { name: /^Linie \d|^.+: (OK|Warnung|Fehler)/ });
 
 beforeEach(() => localStorage.clear());
 
@@ -20,35 +22,37 @@ describe('line-first shift view', () => {
     expect(
       screen.getByRole('heading', {
         level: 2,
-        name: /Mon 26 Oct · Early 05:45–14:00 · Crew \d on duty$/,
+        name: /Mo\., 26\. Okt\. · Früh 05:45–14:00 · Gruppe \d im Dienst$/,
       }),
     ).toBeInTheDocument();
     const headings = screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent);
-    expect(headings).toEqual(['Line 1', 'Line 2', 'Line 3', 'Line 4']);
+    expect(headings).toEqual(['Linie 1', 'Linie 2', 'Linie 3', 'Linie 4']);
     const first = cards()[0];
     if (!first) throw new Error('no card');
     expect(
       within(first)
         .getAllByRole('term')
         .map((t) => t.textContent),
-    ).toEqual(['Line Leader', 'Mechanic', 'Primary', 'Secondary']);
+    ).toEqual(['Linienleiter', 'Mechaniker', 'Primär', 'Sekundär']);
   });
 
   it('switches day and shift with tabs and shows times and crew', async () => {
     const user = userEvent.setup();
     render(<App today={TODAY} />);
     await user.click(
-      within(screen.getByRole('group', { name: 'Day' })).getByRole('button', {
-        name: 'Wed 28 Oct',
+      within(screen.getByRole('group', { name: 'Tag' })).getByRole('button', {
+        name: 'Mi., 28. Okt.',
       }),
     );
     await user.click(
-      within(screen.getByRole('group', { name: 'Shift' })).getByRole('button', { name: /^Night/ }),
+      within(screen.getByRole('group', { name: 'Schicht' })).getByRole('button', {
+        name: /^Nacht/,
+      }),
     );
     expect(
       screen.getByRole('heading', {
         level: 2,
-        name: /Wed 28 Oct · Night 21:45–06:00 · Crew \d on duty/,
+        name: /Mi\., 28\. Okt\. · Nacht 21:45–06:00 · Gruppe \d im Dienst/,
       }),
     ).toBeInTheDocument();
   });
@@ -56,18 +60,18 @@ describe('line-first shift view', () => {
   it('shows a 15-chip week strip with text status and a week summary', () => {
     render(<App today={TODAY} />);
     expect(chips()).toHaveLength(15);
-    for (const c of chips()) expect(c.textContent).toMatch(/^(✓ OK|! \d+ warn|✕ \d+ err)$/);
-    expect(screen.getByText(/This week: \d+ errors, \d+ warnings/)).toBeInTheDocument();
+    for (const c of chips()) expect(c.textContent).toMatch(/^(✓ OK|! \d+ Warn\.|✕ \d+ Fehl\.)$/);
+    expect(screen.getByText(/Diese Woche: \d+ Fehler, \d+ Warnungen/)).toBeInTheDocument();
   });
 
   it('selects a day and shift by clicking a chip', async () => {
     const user = userEvent.setup();
     render(<App today={TODAY} />);
-    await user.click(screen.getByRole('button', { name: /^Thu 29 Oct Late: / }));
+    await user.click(screen.getByRole('button', { name: /^Do\., 29\. Okt\. Spät: / }));
     expect(
-      screen.getByRole('heading', { level: 2, name: /Thu 29 Oct · Late/ }),
+      screen.getByRole('heading', { level: 2, name: /Do\., 29\. Okt\. · Spät/ }),
     ).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /^Thu 29 Oct Late: / })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: /^Do\., 29\. Okt\. Spät: / })).toHaveAttribute(
       'aria-pressed',
       'true',
     );
@@ -76,22 +80,22 @@ describe('line-first shift view', () => {
   it('navigates weeks', async () => {
     const user = userEvent.setup();
     render(<App today={TODAY} />);
-    await user.click(screen.getByRole('button', { name: /Next week/ }));
-    expect(screen.getByRole('heading', { name: /Week 45: 02 Nov 2026/ })).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'This week' }));
-    expect(screen.getByRole('heading', { name: /Week 44/ })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /Nächste Woche/ }));
+    expect(screen.getByRole('heading', { name: /KW 45: 02\. Nov\. 2026/ })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Diese Woche' }));
+    expect(screen.getByRole('heading', { name: /KW 44/ })).toBeInTheDocument();
   });
 
   it('shows the coming week when opened on a Sunday', () => {
     render(<App today="2026-10-25" />);
-    expect(screen.getByRole('heading', { name: /Week 44: 26 Oct 2026/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /KW 44: 26\. Okt\. 2026/ })).toBeInTheDocument();
   });
 });
 
 describe('STL badge and shift tint', () => {
   it('shows the STL on duty in a prominent badge', () => {
     render(<App today={TODAY} />);
-    const badge = screen.getByRole('note', { name: /^STL on duty: \w+ \w+$/ });
+    const badge = screen.getByRole('note', { name: /^STL im Dienst: \w+ \w+$/ });
     expect(badge).toHaveClass('stl-present');
     expect(within(badge).getByText('STL')).toBeInTheDocument();
   });
@@ -101,14 +105,16 @@ describe('STL badge and shift tint', () => {
     render(<App today={TODAY} />);
     for (const chip of chips()) {
       await user.click(chip);
-      if (screen.queryByRole('note', { name: /^Warning: No STL on duty/ })) break;
+      if (screen.queryByRole('note', { name: /^Warnung: Kein STL im Dienst/ })) break;
     }
-    const badge = screen.getByRole('note', { name: /^Warning: No STL on duty, .+ is absent$/ });
+    const badge = screen.getByRole('note', {
+      name: /^Warnung: Kein STL im Dienst, .+ ist abwesend$/,
+    });
     expect(badge).toHaveClass('stl-absent');
-    expect(within(badge).getByText('No STL on duty')).toBeInTheDocument();
-    expect(within(badge).getByText(/\(absent\)$/)).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: 'Status Warning' }).closest('li')).toHaveTextContent(
-      'No STL on duty',
+    expect(within(badge).getByText('Kein STL im Dienst')).toBeInTheDocument();
+    expect(within(badge).getByText(/\(abwesend\)$/)).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Status Warnung' }).closest('li')).toHaveTextContent(
+      'Kein STL im Dienst',
     );
   });
 
@@ -119,11 +125,11 @@ describe('STL badge and shift tint', () => {
     expect(area()).toHaveAttribute('data-shift', 'early');
     expect(area()).toHaveClass('shift-early');
     await user.click(
-      within(screen.getByRole('group', { name: 'Shift' })).getByRole('button', { name: /Night/ }),
+      within(screen.getByRole('group', { name: 'Schicht' })).getByRole('button', { name: /Nacht/ }),
     );
     expect(area()).toHaveAttribute('data-shift', 'night');
     expect(area()).toHaveClass('shift-night');
-    const tabs = within(screen.getByRole('group', { name: 'Shift' })).getAllByRole('button');
+    const tabs = within(screen.getByRole('group', { name: 'Schicht' })).getAllByRole('button');
     expect(tabs.map((t) => t.textContent?.slice(0, 2))).toEqual(['☀️', '🌇', '🌙']);
     expect(tabs[2]).toHaveClass('shift-night');
   });
@@ -133,7 +139,7 @@ describe('empty slots and cover', () => {
   async function openFirstErrorShift() {
     const user = userEvent.setup();
     render(<App today={TODAY} />);
-    const errChip = screen.getAllByRole('button', { name: /: error,/ })[0];
+    const errChip = screen.getAllByRole('button', { name: /: Fehler,/ })[0];
     if (!errChip) throw new Error('demo data has no error shift');
     await user.click(errChip);
     return user;
@@ -141,61 +147,65 @@ describe('empty slots and cover', () => {
 
   it('renders a missing slot as an error with text and an error card header', async () => {
     await openFirstErrorShift();
-    const missing = screen.getAllByRole('button', { name: /: missing \(error\)\. Find cover/ });
+    const missing = screen.getAllByRole('button', {
+      name: /: fehlt \(Fehler\)\. Vertretung finden/,
+    });
     expect(missing.length).toBeGreaterThan(0);
-    expect(missing[0]).toHaveTextContent('✕ — missing');
-    expect(screen.getAllByRole('img', { name: /^Status Error: No / }).length).toBeGreaterThan(0);
+    expect(missing[0]).toHaveTextContent('✕ — fehlt');
+    expect(screen.getAllByRole('img', { name: /^Status Fehler: Kein / }).length).toBeGreaterThan(0);
   });
 
   it('opens the panel with the role preselected and accepts a suggestion', async () => {
     const user = await openFirstErrorShift();
-    const slot = screen.getAllByRole('button', { name: /: missing \(error\)\. Find cover/ })[0];
+    const slot = screen.getAllByRole('button', {
+      name: /: fehlt \(Fehler\)\. Vertretung finden/,
+    })[0];
     if (!slot) throw new Error('no slot');
-    const role = /^(.+?): missing/.exec(slot.getAttribute('aria-label') ?? '')?.[1] ?? '';
+    const role = /^(.+?): fehlt/.exec(slot.getAttribute('aria-label') ?? '')?.[1] ?? '';
     await user.click(slot);
     const panel = screen.getByRole('complementary');
     expect(
-      within(panel).getByText(/The app only suggests\. You, the planner, decide/),
+      within(panel).getByText(/Die App macht nur Vorschläge\. Du als Planer entscheidest/),
     ).toBeInTheDocument();
-    expect(within(panel).getByRole('combobox', { name: /Role to cover/ })).toHaveDisplayValue(
+    expect(within(panel).getByRole('combobox', { name: /Zu besetzende Rolle/ })).toHaveDisplayValue(
       new RegExp(`^${role}`),
     );
 
-    const accept = within(panel).getAllByRole('button', { name: /^Accept / })[0];
+    const accept = within(panel).getAllByRole('button', { name: / übernehmen$/ })[0];
     if (!accept) throw new Error('no suggestion');
-    const name = /^Accept (.+) as /.exec(accept.getAttribute('aria-label') ?? '')?.[1] ?? '';
+    const name = /^(.+) als /.exec(accept.getAttribute('aria-label') ?? '')?.[1] ?? '';
     await user.click(accept);
-    expect(within(panel).getByText('added by planner')).toBeInTheDocument();
+    expect(within(panel).getByText('vom Planer hinzugefügt')).toBeInTheDocument();
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('complementary')).toBeNull();
     expect(
       screen.getByRole('button', { name: new RegExp(`^${role}: ${name}\\.`) }),
     ).toBeInTheDocument();
-    expect(screen.getByText(/1 cover\(s\) added by you/)).toBeInTheDocument();
+    expect(screen.getByText(/1 Vertretung\(en\) von dir hinzugefügt/)).toBeInTheDocument();
   });
 
   it('suggests a same-crew spare first', async () => {
     const user = await openFirstErrorShift();
-    const slot = screen.getAllByRole('button', { name: /^Secondary: / })[0];
+    const slot = screen.getAllByRole('button', { name: /^Sekundär: / })[0];
     if (!slot) throw new Error('no secondary');
     await user.click(slot);
     const firstSuggestion = within(
-      screen.getByRole('list', { name: 'Ranked cover suggestions' }),
+      screen.getByRole('list', { name: 'Sortierte Vertretungsvorschläge' }),
     ).getAllByRole('listitem')[0];
-    expect(firstSuggestion).toHaveTextContent('Same role, same crew');
+    expect(firstSuggestion).toHaveTextContent('Gleiche Rolle, gleiche Gruppe');
   });
 
   it('reset clears accepted covers and closes the panel', async () => {
     const user = await openFirstErrorShift();
-    const slot = screen.getAllByRole('button', { name: /Find cover/ })[0];
+    const slot = screen.getAllByRole('button', { name: /Vertretung finden/ })[0];
     if (!slot) throw new Error('no slot');
     await user.click(slot);
-    const accept = screen.getAllByRole('button', { name: /^Accept / })[0];
+    const accept = screen.getAllByRole('button', { name: / übernehmen$/ })[0];
     if (!accept) throw new Error('no suggestion');
     await user.click(accept);
-    await user.click(screen.getByRole('button', { name: 'Load demo data / Reset' }));
+    await user.click(screen.getByRole('button', { name: 'Demodaten laden / Zurücksetzen' }));
     expect(screen.queryByRole('complementary')).toBeNull();
-    expect(screen.queryByText(/added by you/)).toBeNull();
+    expect(screen.queryByText(/von dir hinzugefügt/)).toBeNull();
   });
 });
 
@@ -203,31 +213,31 @@ describe('settings', () => {
   it('renames a line locally and stores it in localStorage only', async () => {
     const user = userEvent.setup();
     render(<App today={TODAY} />);
-    await user.click(screen.getByText('Settings'));
-    const input = screen.getByRole('textbox', { name: 'Line 2' });
+    await user.click(screen.getByText('Einstellungen'));
+    const input = screen.getByRole('textbox', { name: 'Linie 2' });
     await user.clear(input);
     await user.type(input, 'Packer West');
     expect(screen.getByRole('heading', { level: 3, name: 'Packer West' })).toBeInTheDocument();
     expect(JSON.parse(localStorage.getItem(LINE_NAMES_KEY) ?? '{}')).toMatchObject({
       '2': 'Packer West',
     });
-    await user.click(screen.getByRole('button', { name: 'Reset line names' }));
-    expect(screen.getByRole('heading', { level: 3, name: 'Line 2' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Liniennamen zurücksetzen' }));
+    expect(screen.getByRole('heading', { level: 3, name: 'Linie 2' })).toBeInTheDocument();
   });
 
   it('loads saved names on start and falls back for blank names', () => {
     localStorage.setItem(LINE_NAMES_KEY, JSON.stringify({ '1': 'North', '3': '   ' }));
     render(<App today={TODAY} />);
     const names = screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent);
-    expect(names).toEqual(['North', 'Line 2', 'Line 3', 'Line 4']);
+    expect(names).toEqual(['North', 'Linie 2', 'Linie 3', 'Linie 4']);
   });
 });
 
 describe('StatusBadge', () => {
   it.each([
     ['ok', '✓', 'OK'],
-    ['warning', '!', 'Warning'],
-    ['error', '✕', 'Error'],
+    ['warning', '!', 'Warnung'],
+    ['error', '✕', 'Fehler'],
   ] as const)('renders %s with icon and text', (status, icon, label) => {
     render(<StatusBadge status={status} />);
     expect(screen.getByRole('img', { name: `Status ${label}` })).toHaveTextContent(

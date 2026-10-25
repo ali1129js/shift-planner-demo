@@ -82,7 +82,7 @@ describe('rotation (backward: Early -> Night -> Late)', () => {
     expect(shiftForCrew('crew-1', '2025-12-29')).toBe('late');
   });
   it('provides an informational note recommending forward rotation', () => {
-    expect(ROTATION_NOTE).toMatch(/forward rotation/i);
+    expect(ROTATION_NOTE).toMatch(/Vorwärtsrotation/i);
   });
 });
 
@@ -313,7 +313,7 @@ describe('cover suggestions', () => {
   });
   it('adds a rest-time note for people from another crew', () => {
     const s = suggestCover(req, { people, absences: [], assignments: [] });
-    expect(s.find((x) => x.person.id === 'other')?.notes.join(' ')).toMatch(/rest time/);
+    expect(s.find((x) => x.person.id === 'other')?.notes.join(' ')).toMatch(/Ruhezeit/);
     expect(s.find((x) => x.person.id === 'spare')?.notes).toEqual([]);
   });
 });
@@ -397,7 +397,7 @@ describe('STL (Shift Team Leader)', () => {
     });
     expect(r.issues.find((i) => i.code === 'stl-missing')).toMatchObject({
       severity: 'warning',
-      message: 'No STL on duty',
+      message: 'Kein STL im Dienst',
     });
     expect(r.ok).toBe(true);
   });

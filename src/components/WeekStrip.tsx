@@ -13,7 +13,7 @@ interface Props {
 export function WeekStrip({ weekStart, views, selected, onSelect }: Props) {
   const dates = weekDates(weekStart);
   return (
-    <div className="strip" role="group" aria-label="Week overview">
+    <div className="strip" role="group" aria-label="Wochenübersicht">
       <span />
       {dates.map((d) => (
         <span key={d} className="strip-day">
@@ -36,7 +36,7 @@ export function WeekStrip({ weekStart, views, selected, onSelect }: Props) {
                 type="button"
                 className={`chip chip-${c.status}${isSel ? ' chip-selected' : ''}`}
                 aria-pressed={isSel}
-                aria-label={`${dayLabel(date)} ${SHIFTS[shift].label}: ${c.status === 'ok' ? 'OK' : c.status}, ${v.report.errors} errors, ${v.report.warnings} warnings`}
+                aria-label={`${dayLabel(date)} ${SHIFTS[shift].label}: ${c.status === 'ok' ? 'OK' : c.status === 'error' ? 'Fehler' : 'Warnung'}, ${v.report.errors} Fehler, ${v.report.warnings} Warnungen`}
                 onClick={() => onSelect(date, shift)}
               >
                 <span aria-hidden="true">{c.icon}</span> {c.text}

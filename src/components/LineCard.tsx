@@ -17,6 +17,7 @@ interface Props {
   onOpen: (line: LineId, role: Role) => void;
 }
 
+const SEVERITY_DE = { ok: 'OK', warning: 'Warnung', error: 'Fehler' } as const;
 const SLOT_ICON = { ok: '', warning: '!', error: '✕' } as const;
 
 export function LineCard({ view, line, name, peopleById, onOpen }: Props) {
@@ -28,7 +29,7 @@ export function LineCard({ view, line, name, peopleById, onOpen }: Props) {
   return (
     <section
       className={`card card-${status}`}
-      aria-label={`${name}: ${status === 'ok' ? 'OK' : `${status}, ${reason}`}`}
+      aria-label={`${name}: ${status === 'ok' ? 'OK' : `${status === 'error' ? 'Fehler' : 'Warnung'}, ${reason}`}`}
     >
       <header className="card-head">
         <h3>{name}</h3>
@@ -43,15 +44,15 @@ export function LineCard({ view, line, name, peopleById, onOpen }: Props) {
                 const person = slot.personId ? peopleById.get(slot.personId) : undefined;
                 const label =
                   slot.state === 'missing'
-                    ? '— missing'
+                    ? '— fehlt'
                     : slot.state === 'optional'
-                      ? '+ 2nd optional'
+                      ? '+ 2. optional'
                       : (person?.name ?? slot.personId ?? '');
                 const icon = SLOT_ICON[slot.severity];
                 const describe =
                   slot.state === 'filled'
-                    ? `${ROLE_LABELS[role]}: ${label}. Show cover options`
-                    : `${ROLE_LABELS[role]}: ${slot.state === 'missing' ? 'missing' : slot.state === 'optional' ? 'second Secondary optional' : `${label}, ${slot.note ?? ''}`} (${slot.severity}). Find cover`;
+                    ? `${ROLE_LABELS[role]}: ${label}. Vertretungsoptionen anzeigen`
+                    : `${ROLE_LABELS[role]}: ${slot.state === 'missing' ? 'fehlt' : slot.state === 'optional' ? 'zweiter Sekundär optional' : `${label}, ${slot.note ?? ''}`} (${SEVERITY_DE[slot.severity]}). Vertretung finden`;
                 return (
                   <button
                     key={`${slot.personId ?? slot.state}-${i}`}
