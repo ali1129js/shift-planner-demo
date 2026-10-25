@@ -102,3 +102,74 @@ export function gapRoles(issues: readonly StaffingIssue[]): Role[] {
 }
 
 export { LINE_IDS };
+
+const SHORT: Record<string, string> = {
+  'primary-missing': 'No Primary',
+  'lead-missing': 'No Shift Lead',
+  'secondary-missing': 'No Secondary',
+  'person-absent': 'Absent person assigned',
+  'not-qualified': 'Not qualified',
+  'double-booked': 'Double-booked',
+  'primary-surplus': 'More than 1 Primary',
+  'secondary-below-optimal': 'Only 1 Secondary',
+  'stand-in': 'Stand-in',
+};
+
+/** A few words describing the worst problem of a line, e.g. "No Primary". */
+export function shortReason(issues: readonly StaffingIssue[]): string {
+  const pick = (sev: StaffingIssue['severity']) => issues.filter((i) => i.severity === sev);
+  const top = pick('error')[0] ?? pick('warning')[0];
+  if (!top) return 'OK';
+  const extra = pick('error').length + pick('warning').length - 1;
+  return `${SHORT[top.code] ?? top.message}${extra > 0 ? ` +${extra}` : ''}`;
+}
+
+export type SlotState = 'filled' | 'flagged' | 'missing' | 'optional';
+
+export interface Slot {
+  role: Role;
+  state: SlotState;
+  severity: Status;
+  personId?: string;
+  note?: string;
+}
+
+/** Fixed role rows of a line card: Shift Lead, Mechanic, Primary, Secondary (1-2). */
+export const CARD_ROLES: readonly Role[] = ['lead', 'mechanic', 'primary', 'secondary'];
+
+export function lineSlots(view: ShiftView, line: LineId): Record<Role, Slot[]> {
+  const issues = lineIssues(view, line);
+  const out = {} as Record<Role, Slot[]>;
+  for (const role of CARD_ROLES) {
+    const slots: Slot[] = view.assignments
+      .filter((a) => a.line === line && a.role === role)
+      .map((a) => {
+        const own = issues.filter((i) => i.personId === a.personId && i.severity !== 'info');
+        const worst = statusOf(own);
+        const first = own[0];
+        return worst === 'ok' || !first
+          ? { role, state: 'filled', severity: 'ok', personId: a.personId }
+          : {
+              role,
+              state: 'flagged',
+              severity: worst,
+              personId: a.personId,
+              note: SHORT[first.code] ?? first.code,
+            };
+      });
+    if (slots.length === 0) {
+      // A missing mechanic on one line is covered by the shift-wide mechanic rule.
+      slots.push({ role, state: 'missing', severity: role === 'mechanic' ? 'warning' : 'error' });
+    } else if (role === 'secondary' && slots.length === 1) {
+      slots.push({ role, state: 'optional', severity: 'warning', note: '2nd Secondary (optimal)' });
+    }
+    out[role] = slots;
+  }
+  return out;
+}
+
+export function chipText(errors: number, warnings: number) {
+  if (errors > 0) return { status: 'error' as const, icon: '✕', text: `${errors} err` };
+  if (warnings > 0) return { status: 'warning' as const, icon: '!', text: `${warnings} warn` };
+  return { status: 'ok' as const, icon: '✓', text: 'OK' };
+}

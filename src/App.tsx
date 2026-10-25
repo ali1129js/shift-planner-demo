@@ -1,24 +1,30 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { LineCard } from './components/LineCard';
+import { SettingsPanel } from './components/SettingsPanel';
 import { SidePanel } from './components/SidePanel';
-import { WeekGrid } from './components/WeekGrid';
-import { isoWeek, longDate } from './components/format';
+import { StatusBadge } from './components/StatusBadge';
+import { WeekStrip } from './components/WeekStrip';
+import { dayLabel, isoWeek, longDate } from './components/format';
 import {
   COMPANY_NAME,
   CREWS,
+  LINES,
   ROTATION_NOTE,
   SHIFTS,
   SHIFT_TYPES,
   addDays,
   generateDemoData,
   mondayOf,
-  rotationForWeek,
   toIsoDate,
   weekdayIndex,
   type Assignment,
   type IsoDate,
   type LineId,
+  type Role,
+  type ShiftType,
 } from './domain';
-import { buildWeek } from './planner';
+import { buildWeek, chipText, shiftLevelIssues, weekDates } from './planner';
+import { useLineNames } from './settings';
 import './App.css';
 
 interface Props {
@@ -34,33 +40,46 @@ const sameAssignment = (a: Assignment, b: Assignment) =>
   a.personId === b.personId;
 
 export default function App({ today = toIsoDate(new Date()) }: Props) {
+  const isWeekend = weekdayIndex(today) >= 5;
   // On weekends there is no work, so "this week" means the coming week.
-  const thisWeek = weekdayIndex(today) >= 5 ? mondayOf(addDays(today, 7)) : mondayOf(today);
+  const thisWeek = isWeekend ? mondayOf(addDays(today, 7)) : mondayOf(today);
   const [weekStart, setWeekStart] = useState(thisWeek);
+  const [day, setDay] = useState(isWeekend ? 0 : weekdayIndex(today));
+  const [shift, setShift] = useState<ShiftType>('early');
   const [data, setData] = useState(() => generateDemoData({ referenceDate: thisWeek }));
   const [accepted, setAccepted] = useState<Assignment[]>([]);
-  const [selected, setSelected] = useState<{ date: IsoDate; shift: string; line: LineId } | null>(
-    null,
-  );
+  const [panel, setPanel] = useState<{ line: LineId; role: Role } | null>(null);
+  const { names, update, reset: resetNames } = useLineNames();
 
   const views = useMemo(
     () => buildWeek(weekStart, data.people, data.absences, accepted),
     [weekStart, data, accepted],
   );
   const peopleById = useMemo(() => new Map(data.people.map((p) => [p.id, p])), [data]);
-  const selectedView =
-    selected && views.find((v) => v.date === selected.date && v.shift === selected.shift);
-  const rotation = rotationForWeek(weekStart);
+  const dates = weekDates(weekStart);
+  const date = dates[day] ?? weekStart;
+  const view = views.find((v) => v.date === date && v.shift === shift);
+  const lineName = (id: LineId) => names[id].trim() || (LINES.find((l) => l.id === id)?.name ?? id);
   const crewName = (id: string) => CREWS.find((c) => c.id === id)?.name ?? id;
+  const totals = views.reduce(
+    (t, v) => ({ e: t.e + v.report.errors, w: t.w + v.report.warnings }),
+    { e: 0, w: 0 },
+  );
+  const closePanel = useCallback(() => setPanel(null), []);
 
   const goTo = (w: IsoDate) => {
     setWeekStart(w);
-    setSelected(null);
+    setPanel(null);
+  };
+  const select = (d: IsoDate, s: ShiftType) => {
+    setDay(Math.max(0, dates.indexOf(d)));
+    setShift(s);
+    setPanel(null);
   };
   const reset = () => {
     setData(generateDemoData({ referenceDate: thisWeek }));
     setAccepted([]);
-    setSelected(null);
+    setPanel(null);
     setWeekStart(thisWeek);
   };
 
@@ -71,9 +90,12 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
           <h1>Shift Planner Demo</h1>
           <p className="sub">{COMPANY_NAME} · fictional demo data</p>
         </div>
-        <button type="button" className="btn" onClick={reset}>
-          Load demo data / Reset
-        </button>
+        <div className="topbar-actions">
+          <SettingsPanel names={names} onChange={update} onReset={resetNames} />
+          <button type="button" className="btn" onClick={reset}>
+            Load demo data / Reset
+          </button>
+        </div>
       </header>
 
       <nav className="weeknav" aria-label="Week navigation">
@@ -96,36 +118,88 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
         </h2>
       </nav>
 
-      <p className="rotation">
-        Rotation:{' '}
-        {SHIFT_TYPES.map((s) => `${SHIFTS[s].label} = ${crewName(rotation[s])}`).join(' · ')}
-        {accepted.length > 0 && ` · ${accepted.length} cover(s) added by planner (not saved yet)`}
+      <p className="summary" aria-live="polite">
+        <StatusBadge status={chipText(totals.e, totals.w).status} /> This week: {totals.e} errors,{' '}
+        {totals.w} warnings
+        {accepted.length > 0 && ` · ${accepted.length} cover(s) added by you (not saved yet)`}
       </p>
 
-      <div className={`layout${selectedView ? ' with-panel' : ''}`}>
-        <WeekGrid
-          weekStart={weekStart}
-          views={views}
-          peopleById={peopleById}
-          selected={selected}
-          onSelect={(v, line) => setSelected({ date: v.date, shift: v.shift, line })}
-        />
-        {selected && selectedView && (
-          <SidePanel
-            key={`${selected.date}|${selected.shift}|${selected.line}`}
-            view={selectedView}
-            line={selected.line}
-            people={data.people}
-            absences={data.absences}
-            accepted={accepted}
-            onAccept={(a) =>
-              setAccepted((prev) => (prev.some((x) => sameAssignment(x, a)) ? prev : [...prev, a]))
-            }
-            onRemove={(a) => setAccepted((prev) => prev.filter((x) => !sameAssignment(x, a)))}
-            onClose={() => setSelected(null)}
-          />
-        )}
+      <WeekStrip weekStart={weekStart} views={views} selected={{ date, shift }} onSelect={select} />
+
+      <div className="tabs" role="group" aria-label="Day">
+        {dates.map((d, i) => (
+          <button
+            key={d}
+            type="button"
+            className="tab"
+            aria-pressed={i === day}
+            onClick={() => select(d, shift)}
+          >
+            {dayLabel(d)}
+          </button>
+        ))}
       </div>
+      <div className="tabs" role="group" aria-label="Shift">
+        {SHIFT_TYPES.map((s) => (
+          <button
+            key={s}
+            type="button"
+            className="tab"
+            aria-pressed={s === shift}
+            onClick={() => select(date, s)}
+          >
+            {SHIFTS[s].label} {SHIFTS[s].start}–{SHIFTS[s].end}
+          </button>
+        ))}
+      </div>
+
+      {view && (
+        <main>
+          <h2 className="shift-title">
+            {dayLabel(date)} · {SHIFTS[shift].label} {SHIFTS[shift].start}–{SHIFTS[shift].end} ·{' '}
+            {crewName(view.crew)} on duty
+          </h2>
+          {shiftLevelIssues(view).length > 0 && (
+            <ul className="shift-issues">
+              {shiftLevelIssues(view).map((i, n) => (
+                <li key={n}>
+                  <StatusBadge status={i.severity} /> {i.message}
+                </li>
+              ))}
+            </ul>
+          )}
+          <div className="cards">
+            {LINES.map((l) => (
+              <LineCard
+                key={l.id}
+                view={view}
+                line={l.id}
+                name={lineName(l.id)}
+                peopleById={peopleById}
+                onOpen={(line, role) => setPanel({ line, role })}
+              />
+            ))}
+          </div>
+        </main>
+      )}
+
+      {panel && view && (
+        <SidePanel
+          key={`${view.date}|${view.shift}|${panel.line}|${panel.role}`}
+          view={view}
+          line={panel.line}
+          lineName={lineName(panel.line)}
+          initialRole={panel.role}
+          people={data.people}
+          absences={data.absences}
+          accepted={accepted}
+          onAccept={(a) =>
+            setAccepted((prev) => (prev.some((x) => sameAssignment(x, a)) ? prev : [...prev, a]))
+          }
+          onRemove={(a) => setAccepted((prev) => prev.filter((x) => !sameAssignment(x, a)))}
+          onClose={closePanel}
+        />
+      )}
 
       <footer className="foot">
         <p>

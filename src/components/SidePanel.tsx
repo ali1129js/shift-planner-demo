@@ -18,6 +18,8 @@ import { dayLabel } from './format';
 interface Props {
   view: ShiftView;
   line: LineId;
+  lineName: string;
+  initialRole?: Role | undefined;
   people: readonly Person[];
   absences: readonly Absence[];
   accepted: readonly Assignment[];
@@ -27,7 +29,7 @@ interface Props {
 }
 
 const TIER_LABEL = [
-  'Same role, on-shift crew',
+  'Same role, same crew',
   'Same role, other crew',
   'Stand-in',
   'Stand-in (last resort)',
@@ -36,6 +38,8 @@ const TIER_LABEL = [
 export function SidePanel({
   view,
   line,
+  lineName,
+  initialRole,
   people,
   absences,
   accepted,
@@ -45,13 +49,24 @@ export function SidePanel({
 }: Props) {
   const issues = lineIssues(view, line);
   const gaps = gapRoles(issues);
-  const [role, setRole] = useState<Role>(gaps[0] ?? 'secondary');
+  const [role, setRole] = useState<Role>(initialRole ?? gaps[0] ?? 'secondary');
   const headingRef = useRef<HTMLHeadingElement>(null);
   const key = `${view.date}|${view.shift}|${line}`;
 
   useEffect(() => {
     headingRef.current?.focus();
   }, [key]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  // Domain messages start with the line number; the panel already names the line.
+  const clean = (m: string) => m.replace(/^Line \d+: /, '');
 
   const byId = new Map(people.map((p) => [p.id, p]));
   const onLine = view.assignments.filter((a) => a.line === line);
@@ -75,7 +90,7 @@ export function SidePanel({
     <aside className="panel" aria-labelledby="panel-title">
       <div className="panel-head">
         <h2 id="panel-title" tabIndex={-1} ref={headingRef}>
-          Line {line} · {SHIFTS[view.shift].label} · {dayLabel(view.date)}
+          {lineName} · {SHIFTS[view.shift].label} · {dayLabel(view.date)}
         </h2>
         <button type="button" className="btn" onClick={onClose} aria-label="Close details">
           Close
@@ -109,7 +124,7 @@ export function SidePanel({
         {issues.length === 0 && <li>All rules met for this line.</li>}
         {issues.map((i, n) => (
           <li key={n}>
-            <StatusBadge status={i.severity} /> {i.message}
+            <StatusBadge status={i.severity} /> {clean(i.message)}
           </li>
         ))}
         {shiftWide.map((i, n) => (
@@ -152,7 +167,7 @@ export function SidePanel({
               <button
                 type="button"
                 className="btn btn-primary"
-                aria-label={`Accept ${s.person.name} as ${ROLE_LABELS[role]} on Line ${line}`}
+                aria-label={`Accept ${s.person.name} as ${ROLE_LABELS[role]} on ${lineName}`}
                 onClick={() =>
                   onAccept({
                     date: view.date,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { generateDemoData } from './domain';
-import { buildWeek, gapRoles, statusOf, weekDates } from './planner';
+import { buildWeek, gapRoles, lineSlots, shortReason, statusOf, weekDates } from './planner';
 
 describe('planner helpers', () => {
   it('lists Mon-Fri dates', () => {
@@ -42,5 +42,39 @@ describe('planner helpers', () => {
     const week = buildWeek('2026-10-26', people, absences, [extra]);
     expect(week).toHaveLength(15);
     expect(week[0]?.assignments).toContainEqual(extra);
+  });
+});
+
+describe('line slots', () => {
+  const base = { date: '2026-10-26', shift: 'early', crew: 'crew-1' } as const;
+  const report = (issues: import('./domain').StaffingIssue[]) => ({
+    ...base,
+    issues,
+    errors: 0,
+    warnings: 0,
+    ok: true,
+  });
+  it('marks missing roles and an optional 2nd Secondary', () => {
+    const view = {
+      ...base,
+      assignments: [
+        { date: base.date, shift: base.shift, line: '1', role: 'secondary', personId: 'x' },
+      ],
+      report: report([]),
+    } as const;
+    const s = lineSlots({ ...view, assignments: [...view.assignments] }, '1');
+    expect(s.lead[0]).toMatchObject({ state: 'missing', severity: 'error' });
+    expect(s.primary[0]).toMatchObject({ state: 'missing', severity: 'error' });
+    expect(s.mechanic[0]).toMatchObject({ state: 'missing', severity: 'warning' });
+    expect(s.secondary.map((x) => x.state)).toEqual(['filled', 'optional']);
+  });
+  it('gives short reasons with a count of further problems', () => {
+    expect(shortReason([])).toBe('OK');
+    expect(
+      shortReason([
+        { severity: 'warning', code: 'secondary-below-optimal', message: '' },
+        { severity: 'error', code: 'primary-missing', message: '' },
+      ]),
+    ).toBe('No Primary +1');
   });
 });
