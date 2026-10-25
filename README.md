@@ -32,7 +32,7 @@ glance and get **suggestions** for cover. The planner always makes the final dec
 - **Week strip:** 15 small chips (Mon-Fri x Early/Late/Night) show each shift's status with an
   icon and text (✓ OK, ! warn, ✕ err). Click a chip to open that shift. A one-line summary
   shows the week's total errors and warnings.
-- **One shift at a time:** day tabs and shift tabs, with the crew on duty and the shift times.
+- **One shift at a time:** day tabs and shift tabs, with the shift times, the crew on duty and its STL.
 - **Line cards (Line 1-4):** each card has fixed rows: Line Leader, Mechanic, Primary,
   Secondary (1-2). Empty slots read **"— missing"** and are styled as errors. The card header
   says what is wrong in a few words (e.g. "No Primary", "Only 1 Secondary").
@@ -55,7 +55,12 @@ glance and get **suggestions** for cover. The planner always makes the final dec
 | Late  | 13:45 - 22:00 |
 | Night | 21:45 - 06:00 |
 
-**Roles:** Primary, Secondary, Line Leader, Mechanic.
+**Roles:** Primary, Secondary, Line Leader, Mechanic (staffed per line), plus one
+**STL (Shift Team Leader)** per crew who leads the whole shift.
+
+- The STL on duty is shown in the shift heading. The STL is not counted in line staffing and
+  is never suggested as line cover. If the STL is absent, the shift gets a **warning**
+  "No STL on duty" (not an error).
 
 **Minimum staffing per line and shift**
 
@@ -91,7 +96,7 @@ glance and get **suggestions** for cover. The planner always makes the final dec
 - zod for schemas and runtime validation
 - Vitest + Testing Library for unit and component tests
 - ESLint (flat config) + Prettier
-- Deterministic, seeded demo-data generator (66 people in 3 crews, incl. 2 spares each)
+- Deterministic, seeded demo-data generator (69 people in 3 crews: 20 line staff, 2 spares and 1 STL each)
 
 ```
 src/domain/
