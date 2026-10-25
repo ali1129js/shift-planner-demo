@@ -36,6 +36,11 @@ glance and get **suggestions** for cover. The planner always makes the final dec
 - **Line cards (Line 1-4):** each card has fixed rows: Line Leader, Mechanic, Primary,
   Secondary (1-2). Empty slots read **"— missing"** and are styled as errors. The card header
   says what is wrong in a few words (e.g. "No Primary", "Only 1 Secondary").
+- **Shift tints:** the selected shift's area, its tab and its week-strip label get a light
+  tint (Early green, Late yellow, Night rose) plus an icon (☀️ / 🌇 / 🌙). Tints are decorative;
+  line cards stay white so the status inside them stays clear.
+- **STL badge:** the STL on duty is shown in a bold badge next to the shift heading, or a
+  warning badge "No STL on duty" with the absent name.
 - Status always uses colour **and** an icon **and** text, so it does not rely on colour alone.
 - **Cover:** click a slot to open the cover panel with that role preselected.
   **The app only suggests; the planner decides** by pressing _Accept_. Each crew has two
