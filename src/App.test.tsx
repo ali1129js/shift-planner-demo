@@ -20,7 +20,7 @@ describe('line-first shift view', () => {
     expect(
       screen.getByRole('heading', {
         level: 2,
-        name: /Mon 26 Oct · Early 05:45–14:00 · Crew \d on duty · STL: \w+ \w+$/,
+        name: /Mon 26 Oct · Early 05:45–14:00 · Crew \d on duty$/,
       }),
     ).toBeInTheDocument();
     const headings = screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent);
@@ -88,18 +88,44 @@ describe('line-first shift view', () => {
   });
 });
 
-describe('STL', () => {
-  it('shows a No STL on duty warning when the crew STL is absent', async () => {
+describe('STL badge and shift tint', () => {
+  it('shows the STL on duty in a prominent badge', () => {
+    render(<App today={TODAY} />);
+    const badge = screen.getByRole('note', { name: /^STL on duty: \w+ \w+$/ });
+    expect(badge).toHaveClass('stl-present');
+    expect(within(badge).getByText('STL')).toBeInTheDocument();
+  });
+
+  it('shows a warning badge with the absent name when the STL is absent', async () => {
     const user = userEvent.setup();
     render(<App today={TODAY} />);
     for (const chip of chips()) {
       await user.click(chip);
-      if (screen.queryByText('No STL on duty')) break;
+      if (screen.queryByRole('note', { name: /^Warning: No STL on duty/ })) break;
     }
-    expect(screen.getByText('No STL on duty')).toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { level: 2, name: /STL: .+ \(absent\)$/ }),
-    ).toBeInTheDocument();
+    const badge = screen.getByRole('note', { name: /^Warning: No STL on duty, .+ is absent$/ });
+    expect(badge).toHaveClass('stl-absent');
+    expect(within(badge).getByText('No STL on duty')).toBeInTheDocument();
+    expect(within(badge).getByText(/\(absent\)$/)).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Status Warning' }).closest('li')).toHaveTextContent(
+      'No STL on duty',
+    );
+  });
+
+  it('marks the shift area with the selected shift and labels shift tabs with icons', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<App today={TODAY} />);
+    const area = () => container.querySelector('main.shift-area');
+    expect(area()).toHaveAttribute('data-shift', 'early');
+    expect(area()).toHaveClass('shift-early');
+    await user.click(
+      within(screen.getByRole('group', { name: 'Shift' })).getByRole('button', { name: /Night/ }),
+    );
+    expect(area()).toHaveAttribute('data-shift', 'night');
+    expect(area()).toHaveClass('shift-night');
+    const tabs = within(screen.getByRole('group', { name: 'Shift' })).getAllByRole('button');
+    expect(tabs.map((t) => t.textContent?.slice(0, 2))).toEqual(['☀️', '🌇', '🌙']);
+    expect(tabs[2]).toHaveClass('shift-night');
   });
 });
 

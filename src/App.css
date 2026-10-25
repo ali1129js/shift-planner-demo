@@ -398,3 +398,86 @@ h3 {
     grid-template-columns: 1fr;
   }
 }
+
+/* Shift tints: light, decorative only. Status keeps solid borders + icon + text; cards stay white. */
+.shift-early {
+  --shift-tint: #e8f6ec;
+  --shift-edge: #9fcfae;
+}
+.shift-late {
+  --shift-tint: #fff6d6;
+  --shift-edge: #e6cc7a;
+}
+.shift-night {
+  --shift-tint: #fde8e8;
+  --shift-edge: #e3a9a9;
+}
+.shift-area {
+  background: var(--shift-tint);
+  border: 1px solid var(--shift-edge);
+  border-radius: 12px;
+  padding: 4px 14px 14px;
+  margin-top: 12px;
+}
+.shift-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin: 10px 0 6px;
+}
+.shift-heading .shift-title {
+  margin: 0;
+}
+.tab-shift {
+  background: var(--shift-tint);
+  border-color: var(--shift-edge);
+}
+.strip-shift {
+  background: var(--shift-tint);
+  border-radius: 4px;
+  padding: 2px 4px;
+  color: #1c2129;
+}
+.card {
+  background: #fff;
+}
+.stl {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 2px solid #1c2129;
+  background: #fff;
+}
+.stl-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  background: #1c2129;
+  color: #fff;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+.stl-name {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1c2129;
+}
+.stl-absent {
+  border-color: var(--warn);
+  border-style: dashed;
+  background: var(--warn-bg);
+}
+.stl-absent .stl-label {
+  background: var(--warn);
+}
+.stl-absent .stl-name {
+  color: var(--warn);
+}
+.stl-absent-name {
+  font-size: 0.95rem;
+  color: #1c2129;
+}

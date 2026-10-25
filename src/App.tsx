@@ -3,6 +3,8 @@ import { LineCard } from './components/LineCard';
 import { SettingsPanel } from './components/SettingsPanel';
 import { SidePanel } from './components/SidePanel';
 import { StatusBadge } from './components/StatusBadge';
+import { StlBadge } from './components/StlBadge';
+import { SHIFT_ICONS } from './components/shiftIcons';
 import { WeekStrip } from './components/WeekStrip';
 import { dayLabel, isoWeek, longDate } from './components/format';
 import {
@@ -67,7 +69,6 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
     { e: 0, w: 0 },
   );
   const stl = view ? stlOnDuty(view.date, view.shift, data.people, data.absences) : undefined;
-  const stlText = !stl?.stl ? 'none' : stl.present ? stl.stl.name : `${stl.stl.name} (absent)`;
   const closePanel = useCallback(() => setPanel(null), []);
 
   const goTo = (w: IsoDate) => {
@@ -147,21 +148,26 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
           <button
             key={s}
             type="button"
-            className="tab"
+            className={`tab tab-shift shift-${s}`}
             aria-pressed={s === shift}
             onClick={() => select(date, s)}
           >
-            {SHIFTS[s].label} {SHIFTS[s].start}–{SHIFTS[s].end}
+            <span aria-hidden="true">{SHIFT_ICONS[s]}</span> {SHIFTS[s].label} {SHIFTS[s].start}–
+            {SHIFTS[s].end}
           </button>
         ))}
       </div>
 
       {view && (
-        <main>
-          <h2 className="shift-title">
-            {dayLabel(date)} · {SHIFTS[shift].label} {SHIFTS[shift].start}–{SHIFTS[shift].end} ·{' '}
-            {crewName(view.crew)} on duty · STL: {stlText}
-          </h2>
+        <main className={`shift-area shift-${shift}`} data-shift={shift}>
+          <div className="shift-heading">
+            <h2 className="shift-title">
+              <span aria-hidden="true">{SHIFT_ICONS[shift]}</span> {dayLabel(date)} ·{' '}
+              {SHIFTS[shift].label} {SHIFTS[shift].start}–{SHIFTS[shift].end} ·{' '}
+              {crewName(view.crew)} on duty
+            </h2>
+            <StlBadge stl={stl} />
+          </div>
           {shiftLevelIssues(view).length > 0 && (
             <ul className="shift-issues">
               {shiftLevelIssues(view).map((i, n) => (

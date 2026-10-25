@@ -1,6 +1,7 @@
 import { SHIFTS, SHIFT_TYPES, type IsoDate, type ShiftType } from '../domain';
 import { chipText, weekDates, type ShiftView } from '../planner';
 import { dayLabel } from './format';
+import { SHIFT_ICONS } from './shiftIcons';
 
 interface Props {
   weekStart: IsoDate;
@@ -21,7 +22,9 @@ export function WeekStrip({ weekStart, views, selected, onSelect }: Props) {
       ))}
       {SHIFT_TYPES.map((shift) => (
         <div key={shift} className="strip-row">
-          <span className="strip-shift">{SHIFTS[shift].label}</span>
+          <span className={`strip-shift shift-${shift}`}>
+            <span aria-hidden="true">{SHIFT_ICONS[shift]}</span> {SHIFTS[shift].label}
+          </span>
           {dates.map((date) => {
             const v = views.find((x) => x.date === date && x.shift === shift);
             if (!v) return <span key={date} />;
