@@ -7,7 +7,9 @@ import { SidePanel } from './components/SidePanel';
 import { StatusBadge } from './components/StatusBadge';
 import { StlBadge } from './components/StlBadge';
 import { SHIFT_ICONS } from './components/shiftIcons';
+import { ThemeToggle } from './components/ThemeToggle';
 import { WeekStrip } from './components/WeekStrip';
+import { useTheme } from './theme/theme';
 import { dayLabel, isoWeek, longDate } from './components/format';
 import {
   COMPANY_NAME,
@@ -45,6 +47,7 @@ const sameAssignment = (a: Assignment, b: Assignment) =>
   a.personId === b.personId;
 
 export default function App({ today = toIsoDate(new Date()) }: Props) {
+  const [theme, toggleTheme] = useTheme();
   const isWeekend = weekdayIndex(today) >= 5;
   // On weekends there is no work, so "this week" means the coming week.
   const thisWeek = isWeekend ? mondayOf(addDays(today, 7)) : mondayOf(today);
@@ -108,6 +111,7 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
           <p className="sub">{COMPANY_NAME} · fiktive Demodaten</p>
         </div>
         <div className="topbar-actions">
+          <ThemeToggle theme={theme} onToggle={toggleTheme} />
           <SettingsPanel names={names} onChange={update} onReset={resetNames} />
           <button type="button" className="btn" onClick={reset}>
             Demo zurücksetzen
