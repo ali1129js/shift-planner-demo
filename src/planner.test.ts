@@ -63,7 +63,7 @@ describe('line slots', () => {
       report: report([]),
     } as const;
     const s = lineSlots({ ...view, assignments: [...view.assignments] }, '1');
-    expect(s.lead[0]).toMatchObject({ state: 'missing', severity: 'error' });
+    expect(s.lineLeader[0]).toMatchObject({ state: 'missing', severity: 'error' });
     expect(s.primary[0]).toMatchObject({ state: 'missing', severity: 'error' });
     expect(s.mechanic[0]).toMatchObject({ state: 'missing', severity: 'warning' });
     expect(s.secondary.map((x) => x.state)).toEqual(['filled', 'optional']);

@@ -85,7 +85,7 @@ export function shiftLevelIssues(view: ShiftView): StaffingIssue[] {
 
 const GAP_ROLE: Record<string, Role> = {
   'primary-missing': 'primary',
-  'lead-missing': 'lead',
+  'line-leader-missing': 'lineLeader',
   'secondary-missing': 'secondary',
   'secondary-below-optimal': 'secondary',
   'mechanic-not-on-line': 'mechanic',
@@ -105,7 +105,7 @@ export { LINE_IDS };
 
 const SHORT: Record<string, string> = {
   'primary-missing': 'No Primary',
-  'lead-missing': 'No Shift Lead',
+  'line-leader-missing': 'No Line Leader',
   'secondary-missing': 'No Secondary',
   'person-absent': 'Absent person assigned',
   'not-qualified': 'Not qualified',
@@ -134,8 +134,8 @@ export interface Slot {
   note?: string;
 }
 
-/** Fixed role rows of a line card: Shift Lead, Mechanic, Primary, Secondary (1-2). */
-export const CARD_ROLES: readonly Role[] = ['lead', 'mechanic', 'primary', 'secondary'];
+/** Fixed role rows of a line card: Line Leader, Mechanic, Primary, Secondary (1-2). */
+export const CARD_ROLES: readonly Role[] = ['lineLeader', 'mechanic', 'primary', 'secondary'];
 
 export function lineSlots(view: ShiftView, line: LineId): Record<Role, Slot[]> {
   const issues = lineIssues(view, line);

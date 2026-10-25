@@ -31,7 +31,7 @@ describe('line-first shift view', () => {
       within(first)
         .getAllByRole('term')
         .map((t) => t.textContent),
-    ).toEqual(['Shift Lead', 'Mechanic', 'Primary', 'Secondary']);
+    ).toEqual(['Line Leader', 'Mechanic', 'Primary', 'Secondary']);
   });
 
   it('switches day and shift with tabs and shows times and crew', async () => {

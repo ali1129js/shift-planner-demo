@@ -29,7 +29,7 @@ export const ShiftSchema = z.object({
 });
 export type Shift = z.infer<typeof ShiftSchema>;
 
-export const ROLES = ['primary', 'secondary', 'lead', 'mechanic'] as const;
+export const ROLES = ['primary', 'secondary', 'lineLeader', 'mechanic'] as const;
 export const RoleSchema = z.enum(ROLES);
 export type Role = z.infer<typeof RoleSchema>;
 

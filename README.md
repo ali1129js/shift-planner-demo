@@ -10,7 +10,7 @@ A small shift-planning tool for a fictional three-shift production plant,
 > **Built with AI-assisted development.** The code was written with the help of an AI
 > coding assistant and reviewed, tested and directed by me.
 
-![Planner: one shift with Line 1-4 cards, a week status strip, and an empty Shift Lead slot flagged as an error](docs/planner.png)
+![Planner: one shift with Line 1-4 cards, a week status strip, and an empty Line Leader slot flagged as an error](docs/planner.png)
 
 ## Why
 
@@ -33,7 +33,7 @@ glance and get **suggestions** for cover. The planner always makes the final dec
   icon and text (✓ OK, ! warn, ✕ err). Click a chip to open that shift. A one-line summary
   shows the week's total errors and warnings.
 - **One shift at a time:** day tabs and shift tabs, with the crew on duty and the shift times.
-- **Line cards (Line 1-4):** each card has fixed rows: Shift Lead, Mechanic, Primary,
+- **Line cards (Line 1-4):** each card has fixed rows: Line Leader, Mechanic, Primary,
   Secondary (1-2). Empty slots read **"— missing"** and are styled as errors. The card header
   says what is wrong in a few words (e.g. "No Primary", "Only 1 Secondary").
 - Status always uses colour **and** an icon **and** text, so it does not rely on colour alone.
@@ -55,21 +55,21 @@ glance and get **suggestions** for cover. The planner always makes the final dec
 | Late  | 13:45 - 22:00 |
 | Night | 21:45 - 06:00 |
 
-**Roles:** Primary, Secondary, Shift Lead, Mechanic.
+**Roles:** Primary, Secondary, Line Leader, Mechanic.
 
 **Minimum staffing per line and shift**
 
-| Role       | Rule                                                                        |
-| ---------- | --------------------------------------------------------------------------- |
-| Primary    | exactly 1 (none = error, more than 1 = warning)                             |
-| Secondary  | at least 1 (none = error), 2 is optimal (1 = warning)                       |
-| Shift Lead | 1 (none = error)                                                            |
-| Mechanic   | ideally 1 per line; per shift: fewer than 2 = error, fewer than 4 = warning |
+| Role        | Rule                                                                        |
+| ----------- | --------------------------------------------------------------------------- |
+| Primary     | exactly 1 (none = error, more than 1 = warning)                             |
+| Secondary   | at least 1 (none = error), 2 is optimal (1 = warning)                       |
+| Line Leader | 1 (none = error)                                                            |
+| Mechanic    | ideally 1 per line; per shift: fewer than 2 = error, fewer than 4 = warning |
 
 **Qualifications:** each person is qualified for certain roles on certain lines.
 
 - Mechanics can work as mechanic on any line, and can stand in as operator only on their listed lines.
-- A Shift Lead can stand in as Secondary; as Primary only as a last resort (warning).
+- A Line Leader can stand in as Secondary; as Primary only as a last resort (warning).
 - Absent or unqualified people do not count toward the minimums.
 
 **Absences:** Vacation, Sick, Training, Overtime off, Contract end.
@@ -82,8 +82,8 @@ glance and get **suggestions** for cover. The planner always makes the final dec
 
 1. Qualified for the role, from the crew on that shift and not yet assigned
 2. Qualified for the role, from another crew (with a rest-time note)
-3. Stand-ins (Lead as Secondary, Mechanic as operator)
-4. Stand-ins with a warning (Lead as Primary)
+3. Stand-ins (Line Leader as Secondary, Mechanic as operator)
+4. Stand-ins with a warning (Line Leader as Primary)
 
 ## Tech
 

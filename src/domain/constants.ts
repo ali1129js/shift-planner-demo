@@ -24,7 +24,7 @@ export const SHIFTS: Readonly<Record<ShiftType, Shift>> = {
 export const ROLE_LABELS: Readonly<Record<Role, string>> = {
   primary: 'Primary',
   secondary: 'Secondary',
-  lead: 'Shift Lead',
+  lineLeader: 'Line Leader',
   mechanic: 'Mechanic',
 };
 
@@ -32,7 +32,7 @@ export const ROLE_LABELS: Readonly<Record<Role, string>> = {
 export const LINE_TARGETS = {
   primary: { exact: 1 },
   secondary: { min: 1, optimal: 2 },
-  lead: { min: 1 },
+  lineLeader: { min: 1 },
   mechanic: { ideal: 1 },
 } as const;
 

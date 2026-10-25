@@ -56,8 +56,8 @@ const LAST = [
   'Specimen',
 ];
 
-/** Per crew: each line gets 1 Primary, 2 Secondaries, 1 Shift Lead, 1 Mechanic = 20 people, plus 2 spares. */
-const SLOTS: readonly Role[] = ['primary', 'secondary', 'secondary', 'lead', 'mechanic'];
+/** Per crew: each line gets 1 Primary, 2 Secondaries, 1 Line Leader, 1 Mechanic = 20 people, plus 2 spares. */
+const SLOTS: readonly Role[] = ['primary', 'secondary', 'secondary', 'lineLeader', 'mechanic'];
 
 export interface DemoData {
   people: Person[];
@@ -93,7 +93,7 @@ export function generateDemoData({ seed = 42, referenceDate }: DemoOptions): Dem
         // Varied cross-training.
         if (role === 'secondary' && rng.chance(0.35)) roles.add('primary');
         if (role === 'primary' && rng.chance(0.8)) roles.add('secondary');
-        if (role === 'lead') {
+        if (role === 'lineLeader') {
           roles.add('secondary');
           if (rng.chance(0.3)) roles.add('primary');
         }

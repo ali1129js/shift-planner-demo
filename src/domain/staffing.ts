@@ -55,7 +55,7 @@ export function checkLine(
   const onLine = forSlot(ctx, date, shift).filter((a) => a.line === line);
 
   // Only assignments by present, qualified people count toward minimums.
-  const counts: Record<Role, number> = { primary: 0, secondary: 0, lead: 0, mechanic: 0 };
+  const counts: Record<Role, number> = { primary: 0, secondary: 0, lineLeader: 0, mechanic: 0 };
   for (const a of onLine) {
     const person = peopleById.get(a.personId);
     const label = ROLE_LABELS[a.role];
@@ -129,8 +129,13 @@ export function checkLine(
       message: `${L}: 1 Secondary (2 is optimal)`,
     });
   }
-  if (counts.lead < LINE_TARGETS.lead.min) {
-    issues.push({ severity: 'error', code: 'lead-missing', line, message: `${L}: no Shift Lead` });
+  if (counts.lineLeader < LINE_TARGETS.lineLeader.min) {
+    issues.push({
+      severity: 'error',
+      code: 'line-leader-missing',
+      line,
+      message: `${L}: no Line Leader`,
+    });
   }
   if (counts.mechanic < LINE_TARGETS.mechanic.ideal) {
     issues.push({

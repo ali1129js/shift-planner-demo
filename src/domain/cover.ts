@@ -22,8 +22,8 @@ export interface CoverContext {
  * Lower tier = better.
  * 0: qualified, from the crew on this shift and not yet assigned (spare)
  * 1: qualified, from another crew
- * 2: stand-in without concerns (e.g. Lead as Secondary, Mechanic as operator)
- * 3: stand-in with a warning (Lead as Primary, last resort)
+ * 2: stand-in without concerns (e.g. Line Leader as Secondary, Mechanic as operator)
+ * 3: stand-in with a warning (Line Leader as Primary, last resort)
  */
 export type CoverTier = 0 | 1 | 2 | 3;
 

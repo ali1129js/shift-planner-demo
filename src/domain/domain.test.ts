@@ -87,7 +87,7 @@ describe('rotation (backward: Early -> Night -> Late)', () => {
 
 describe('qualifications', () => {
   const mech = person('m', { roles: ['mechanic'], homeRole: 'mechanic', lines: ['2'] });
-  const lead = person('l', { roles: ['lead'], homeRole: 'lead', lines: ['1'] });
+  const lead = person('l', { roles: ['lineLeader'], homeRole: 'lineLeader', lines: ['1'] });
   it('lets a mechanic work as mechanic on any line', () => {
     expect(qualificationFor(mech, 'mechanic', '4').kind).toBe('qualified');
   });
@@ -95,13 +95,13 @@ describe('qualifications', () => {
     expect(qualificationFor(mech, 'secondary', '2').kind).toBe('stand-in');
     expect(qualificationFor(mech, 'primary', '1').kind).toBe('not-qualified');
   });
-  it('lets a lead stand in as Secondary without a warning', () => {
+  it('lets a Line Leader stand in as Secondary without a warning', () => {
     expect(qualificationFor(lead, 'secondary', '1')).toMatchObject({
       kind: 'stand-in',
       severity: 'info',
     });
   });
-  it('allows a lead as Primary only with a warning', () => {
+  it('allows a Line Leader as Primary only with a warning', () => {
     expect(qualificationFor(lead, 'primary', '1')).toMatchObject({
       kind: 'stand-in',
       severity: 'warning',
@@ -110,11 +110,11 @@ describe('qualifications', () => {
   it('rejects operators on lines they are not qualified for', () => {
     expect(qualificationFor(person('p'), 'primary', '3').kind).toBe('not-qualified');
   });
-  it('requires an explicit Shift Lead qualification on that line', () => {
+  it('requires an explicit Line Leader qualification on that line', () => {
     expect(
-      qualificationFor(person('p', { roles: ['primary', 'secondary'] }), 'lead', '1').kind,
+      qualificationFor(person('p', { roles: ['primary', 'secondary'] }), 'lineLeader', '1').kind,
     ).toBe('not-qualified');
-    expect(qualificationFor(lead, 'lead', '2').kind).toBe('not-qualified');
+    expect(qualificationFor(lead, 'lineLeader', '2').kind).toBe('not-qualified');
   });
 });
 
@@ -186,12 +186,12 @@ describe('staffing check per line', () => {
       codes(checkLine(MONDAY, 'early', '1', { people, absences: [], assignments: zero })),
     ).toContain('secondary-missing');
   });
-  it('errors when the Shift Lead is missing', () => {
+  it('errors when the Line Leader is missing', () => {
     const { people, assignments } = fullLine('1');
-    const noLead = assignments.filter((a) => a.role !== 'lead');
+    const noLead = assignments.filter((a) => a.role !== 'lineLeader');
     expect(
       codes(checkLine(MONDAY, 'early', '1', { people, absences: [], assignments: noLead })),
-    ).toContain('lead-missing');
+    ).toContain('line-leader-missing');
   });
   it('does not count an absent person and flags the assignment', () => {
     const { people, assignments } = fullLine('1');
@@ -202,9 +202,9 @@ describe('staffing check per line', () => {
     expect(c).toContain('person-absent');
     expect(c).toContain('primary-missing');
   });
-  it('flags a Lead filling in as Primary as a warning but counts them', () => {
+  it('flags a Line Leader filling in as Primary as a warning but counts them', () => {
     const { people, assignments } = fullLine('1');
-    const lead2 = person('lead2', { roles: ['lead'], homeRole: 'lead' });
+    const lead2 = person('lead2', { roles: ['lineLeader'], homeRole: 'lineLeader' });
     const swapped = [
       ...assignments.filter((a) => a.role !== 'primary'),
       assign('lead2', 'primary', '1'),
@@ -266,7 +266,7 @@ describe('staffing check per shift', () => {
   });
   it('detects a person booked twice in the same shift', () => {
     const { people, assignments } = fullShift();
-    const dup = [...assignments, assign('1-lead-1', 'secondary', '2')];
+    const dup = [...assignments, assign('1-lineLeader-1', 'secondary', '2')];
     expect(
       codes(checkShift(MONDAY, 'early', { people, absences: [], assignments: dup }).issues),
     ).toContain('double-booked');
@@ -289,7 +289,7 @@ describe('cover suggestions', () => {
   const otherCrew = crewForShift('late', MONDAY);
   const spare = person('spare', { name: 'Spare', crewId: crewOnEarly, roles: ['primary'] });
   const other = person('other', { name: 'Other', crewId: otherCrew, roles: ['primary'] });
-  const lead = person('lead', { name: 'Lead', crewId: crewOnEarly, roles: ['lead'] });
+  const lead = person('lineLeader', { name: 'Lead', crewId: crewOnEarly, roles: ['lineLeader'] });
   const mech = person('mech', { name: 'Mech', crewId: crewOnEarly, roles: ['mechanic'] });
   const stranger = person('stranger', { name: 'Stranger', lines: ['4'] });
   const people = [lead, mech, other, stranger, spare];
@@ -297,7 +297,7 @@ describe('cover suggestions', () => {
 
   it('ranks same-role qualified first, then other crews, then stand-ins, warnings last', () => {
     const s = suggestCover(req, { people, absences: [], assignments: [] });
-    expect(s.map((x) => x.person.id)).toEqual(['spare', 'other', 'mech', 'lead']);
+    expect(s.map((x) => x.person.id)).toEqual(['spare', 'other', 'mech', 'lineLeader']);
     expect(s.map((x) => x.tier)).toEqual([0, 1, 2, 3]);
   });
   it('excludes absent, already assigned and unqualified people', () => {

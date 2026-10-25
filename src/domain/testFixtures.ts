@@ -25,7 +25,7 @@ export function assign(
   return { date, shift, line, role, personId };
 }
 
-/** A fully staffed line: 1 Primary, 2 Secondary, 1 Lead, 1 Mechanic. */
+/** A fully staffed line: 1 Primary, 2 Secondary, 1 Line Leader, 1 Mechanic. */
 export function fullLine(line: LineId, shift: ShiftType = 'early', date: IsoDate = MONDAY) {
   const p = (role: Role, n: number): Person =>
     person(`${line}-${role}-${n}`, {
@@ -38,7 +38,7 @@ export function fullLine(line: LineId, shift: ShiftType = 'early', date: IsoDate
     p('primary', 1),
     p('secondary', 1),
     p('secondary', 2),
-    p('lead', 1),
+    p('lineLeader', 1),
     p('mechanic', 1),
   ];
   const assignments = people.map((x) => assign(x.id, x.homeRole, line, shift, date));
