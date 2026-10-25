@@ -4,7 +4,7 @@ import { z } from 'zod';
 export const IsoDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Expected YYYY-MM-DD');
 export type IsoDate = z.infer<typeof IsoDateSchema>;
 
-export const LINE_IDS = ['A', 'B', 'C', 'D'] as const;
+export const LINE_IDS = ['1', '2', '3', '4'] as const;
 export const LineIdSchema = z.enum(LINE_IDS);
 export type LineId = z.infer<typeof LineIdSchema>;
 
@@ -58,6 +58,8 @@ export const PersonSchema = z.object({
    * this list limits where they may stand in as an operator.
    */
   lines: z.array(LineIdSchema).min(1),
+  /** Spare (floater) in the crew: not drafted automatically, available for cover. */
+  spare: z.boolean().optional(),
 });
 export type Person = z.infer<typeof PersonSchema>;
 

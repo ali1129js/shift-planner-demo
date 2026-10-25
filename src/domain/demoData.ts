@@ -56,7 +56,7 @@ const LAST = [
   'Specimen',
 ];
 
-/** Per crew: each line gets 1 Primary, 2 Secondaries, 1 Shift Lead, 1 Mechanic = 20 people. */
+/** Per crew: each line gets 1 Primary, 2 Secondaries, 1 Shift Lead, 1 Mechanic = 20 people, plus 2 spares. */
 const SLOTS: readonly Role[] = ['primary', 'secondary', 'secondary', 'lead', 'mechanic'];
 
 export interface DemoData {
@@ -113,6 +113,23 @@ export function generateDemoData({ seed = 42, referenceDate }: DemoOptions): Dem
           lines,
         });
       }
+    }
+    // Two spares per crew: cross-trained operators who can cover several lines.
+    for (let i = 0; i < 2; i++) {
+      const homeLine = rng.pick(LINE_IDS);
+      const roles: Role[] =
+        i === 0 ? ['primary', 'secondary'] : ['secondary', 'primary', 'mechanic'];
+      const lines = [homeLine, ...LINE_IDS.filter((l) => l !== homeLine && rng.chance(0.5))];
+      people.push({
+        id: `p${String(people.length + 1).padStart(3, '0')}`,
+        name: uniqueName(),
+        crewId,
+        homeRole: roles[0] ?? 'secondary',
+        homeLine,
+        roles,
+        lines,
+        spare: true,
+      });
     }
   }
 

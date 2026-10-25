@@ -35,7 +35,7 @@ describe('planner helpers', () => {
     const extra = {
       date: '2026-10-26',
       shift: 'early',
-      line: 'A',
+      line: '1',
       role: 'secondary',
       personId: 'p999',
     } as const;

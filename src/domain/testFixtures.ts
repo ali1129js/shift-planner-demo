@@ -8,9 +8,9 @@ export function person(id: string, over: Partial<Person> = {}): Person {
     name: `Person ${id}`,
     crewId: 'crew-1',
     homeRole: 'primary',
-    homeLine: 'A',
+    homeLine: '1',
     roles: ['primary'],
-    lines: ['A'],
+    lines: ['1'],
     ...over,
   };
 }
@@ -46,7 +46,7 @@ export function fullLine(line: LineId, shift: ShiftType = 'early', date: IsoDate
 }
 
 export function fullShift(shift: ShiftType = 'early', date: IsoDate = MONDAY) {
-  const parts = (['A', 'B', 'C', 'D'] as const).map((l) => fullLine(l, shift, date));
+  const parts = (['1', '2', '3', '4'] as const).map((l) => fullLine(l, shift, date));
   return {
     people: parts.flatMap((x) => x.people),
     assignments: parts.flatMap((x) => x.assignments),

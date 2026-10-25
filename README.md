@@ -1,7 +1,7 @@
 # Shift Planner Demo
 
 A small shift-planning tool for a fictional three-shift production plant,
-**Demo Packaging GmbH**, with four packaging lines (Line A - Line D).
+**Demo Packaging GmbH**, with four packaging lines (Line 1 - Line 4).
 
 > **Fictional data.** Every company, line, crew and person in this project is made up.
 > Names are generated from invented placeholder lists; any resemblance to real people or
@@ -29,7 +29,7 @@ glance and get **suggestions** for cover. The planner always makes the final dec
 
 ## Using the week view
 
-- Each cell shows the crew on duty (from the rotation) and Lines A-D with their people by role.
+- Each cell shows the crew on duty (from the rotation) and Lines 1-4 with their people by role.
 - Status is shown with colour **and** an icon **and** text (✓ OK, ! Warning, ✕ Error), so it
   does not rely on colour alone.
 - Use **Previous week / This week / Next week** to move around. On a weekend, "This week"
@@ -84,7 +84,7 @@ glance and get **suggestions** for cover. The planner always makes the final dec
 - zod for schemas and runtime validation
 - Vitest + Testing Library for unit and component tests
 - ESLint (flat config) + Prettier
-- Deterministic, seeded demo-data generator (~60 people in 3 crews)
+- Deterministic, seeded demo-data generator (66 people in 3 crews, incl. 2 spares each)
 
 ```
 src/domain/

@@ -3,10 +3,10 @@ import type { Crew, Line, Role, Shift, ShiftType } from './schemas';
 export const COMPANY_NAME = 'Demo Packaging GmbH';
 
 export const LINES: readonly Line[] = [
-  { id: 'A', name: 'Line A' },
-  { id: 'B', name: 'Line B' },
-  { id: 'C', name: 'Line C' },
-  { id: 'D', name: 'Line D' },
+  { id: '1', name: 'Line 1' },
+  { id: '2', name: 'Line 2' },
+  { id: '3', name: 'Line 3' },
+  { id: '4', name: 'Line 4' },
 ];
 
 export const CREWS: readonly Crew[] = [

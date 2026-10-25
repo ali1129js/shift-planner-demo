@@ -14,7 +14,7 @@ function firstAccept(): HTMLElement {
 }
 
 function lineButtons() {
-  return screen.getAllByRole('button', { name: /^Line [A-D], / });
+  return screen.getAllByRole('button', { name: /^Line [1-4], / });
 }
 
 describe('week view', () => {
@@ -86,10 +86,10 @@ describe('side panel and cover', () => {
   it('opens details, shows the suggest-only hint, and accepts a suggestion', async () => {
     const user = userEvent.setup();
     render(<App today={TODAY} />);
-    await user.click(screen.getByRole('button', { name: /^Line A, Early, Mon 26 Oct/ }));
+    await user.click(screen.getByRole('button', { name: /^Line 1, Early, Mon 26 Oct/ }));
     const panel = screen.getByRole('complementary');
     expect(
-      within(panel).getByRole('heading', { name: /Line A · Early · Mon 26 Oct/ }),
+      within(panel).getByRole('heading', { name: /Line 1 · Early · Mon 26 Oct/ }),
     ).toHaveFocus();
     expect(within(panel).getByText(/The app only suggests/)).toBeInTheDocument();
 
@@ -101,7 +101,7 @@ describe('side panel and cover', () => {
 
     expect(within(panel).getByText('added by planner')).toBeInTheDocument();
     expect(
-      within(screen.getByRole('button', { name: /^Line A, Early, Mon 26 Oct/ })).getByText(
+      within(screen.getByRole('button', { name: /^Line 1, Early, Mon 26 Oct/ })).getByText(
         new RegExp(name),
       ),
     ).toBeInTheDocument();
@@ -115,7 +115,7 @@ describe('side panel and cover', () => {
   it('can remove an accepted cover and reset clears everything', async () => {
     const user = userEvent.setup();
     render(<App today={TODAY} />);
-    await user.click(screen.getByRole('button', { name: /^Line B, Late, Tue 27 Oct/ }));
+    await user.click(screen.getByRole('button', { name: /^Line 2, Late, Tue 27 Oct/ }));
     await user.click(firstAccept());
     await user.click(screen.getByRole('button', { name: 'Remove' }));
     expect(screen.queryByText('added by planner')).toBeNull();
@@ -128,7 +128,7 @@ describe('side panel and cover', () => {
   it('closes with the Close button', async () => {
     const user = userEvent.setup();
     render(<App today={TODAY} />);
-    await user.click(screen.getByRole('button', { name: /^Line C, Night, Fri 30 Oct/ }));
+    await user.click(screen.getByRole('button', { name: /^Line 3, Night, Fri 30 Oct/ }));
     await user.click(screen.getByRole('button', { name: 'Close details' }));
     expect(screen.queryByRole('complementary')).toBeNull();
   });
