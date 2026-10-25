@@ -10,7 +10,7 @@ A small shift-planning tool for a fictional three-shift production plant,
 > **Built with AI-assisted development.** The code was written with the help of an AI
 > coding assistant and reviewed, tested and directed by me.
 
-![Week view: Mon-Fri x Early/Late/Night grid with line status and the cover side panel](docs/week-view.png)
+![Planner: one shift with Line 1-4 cards, a week status strip, and an empty Shift Lead slot flagged as an error](docs/planner.png)
 
 ## Why
 
@@ -22,21 +22,28 @@ glance and get **suggestions** for cover. The planner always makes the final dec
 ## Status
 
 - **Step 1:** domain model, rules, demo data, tests.
-- **Step 2:** week view (Mon-Fri x shifts) with per-line and per-shift status, week navigation,
-  a side panel with rule results and ranked cover suggestions the planner can accept.
-  Accepted covers live in memory only.
+- **Step 2:** line-first planner: one shift at a time with Line 1-4 cards, a week status
+  strip, and a cover panel with ranked suggestions the planner can accept. Accepted covers
+  live in memory only; custom line names live in `localStorage`.
 - Next: browser `localStorage` persistence, deployment.
 
-## Using the week view
+## Using the planner
 
-- Each cell shows the crew on duty (from the rotation) and Lines 1-4 with their people by role.
-- Status is shown with colour **and** an icon **and** text (✓ OK, ! Warning, ✕ Error), so it
-  does not rely on colour alone.
-- Use **Previous week / This week / Next week** to move around. On a weekend, "This week"
-  means the coming week.
-- Click a line to open its details: who is assigned, which rules fail, and ranked cover
-  suggestions. **The app only suggests; the planner decides** by pressing _Accept_.
+- **Week strip:** 15 small chips (Mon-Fri x Early/Late/Night) show each shift's status with an
+  icon and text (✓ OK, ! warn, ✕ err). Click a chip to open that shift. A one-line summary
+  shows the week's total errors and warnings.
+- **One shift at a time:** day tabs and shift tabs, with the crew on duty and the shift times.
+- **Line cards (Line 1-4):** each card has fixed rows: Shift Lead, Mechanic, Primary,
+  Secondary (1-2). Empty slots read **"— missing"** and are styled as errors. The card header
+  says what is wrong in a few words (e.g. "No Primary", "Only 1 Secondary").
+- Status always uses colour **and** an icon **and** text, so it does not rely on colour alone.
+- **Cover:** click a slot to open the cover panel with that role preselected.
+  **The app only suggests; the planner decides** by pressing _Accept_. Each crew has two
+  spare people, so same-crew cover is usually available.
+- **Settings → Line names:** rename lines for your own use. Names are stored only in this
+  browser's `localStorage` and are never part of the repository.
 - **Load demo data / Reset** restores the seeded demo data and discards accepted covers.
+- On a weekend, "This week" means the coming week.
 
 ## Domain rules
 
