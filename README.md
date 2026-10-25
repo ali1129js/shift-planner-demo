@@ -10,6 +10,8 @@ A small shift-planning tool for a fictional three-shift production plant,
 > **Built with AI-assisted development.** The code was written with the help of an AI
 > coding assistant and reviewed, tested and directed by me.
 
+![Week view: Mon-Fri x Early/Late/Night grid with line status and the cover side panel](docs/week-view.png)
+
 ## Why
 
 Planning shifts in manufacturing is often done in spreadsheets: who is on which line,
@@ -19,8 +21,22 @@ glance and get **suggestions** for cover. The planner always makes the final dec
 
 ## Status
 
-- **Step 1 (this commit range):** domain model, rules, demo data, tests, minimal UI placeholder.
-- Next: planning UI, browser `localStorage` persistence, deployment.
+- **Step 1:** domain model, rules, demo data, tests.
+- **Step 2:** week view (Mon-Fri x shifts) with per-line and per-shift status, week navigation,
+  a side panel with rule results and ranked cover suggestions the planner can accept.
+  Accepted covers live in memory only.
+- Next: browser `localStorage` persistence, deployment.
+
+## Using the week view
+
+- Each cell shows the crew on duty (from the rotation) and Lines A-D with their people by role.
+- Status is shown with colour **and** an icon **and** text (✓ OK, ! Warning, ✕ Error), so it
+  does not rely on colour alone.
+- Use **Previous week / This week / Next week** to move around. On a weekend, "This week"
+  means the coming week.
+- Click a line to open its details: who is assigned, which rules fail, and ranked cover
+  suggestions. **The app only suggests; the planner decides** by pressing _Accept_.
+- **Load demo data / Reset** restores the seeded demo data and discards accepted covers.
 
 ## Domain rules
 
@@ -66,7 +82,7 @@ glance and get **suggestions** for cover. The planner always makes the final dec
 
 - Vite + React + TypeScript (`strict`, `noUncheckedIndexedAccess`)
 - zod for schemas and runtime validation
-- Vitest for unit tests
+- Vitest + Testing Library for unit and component tests
 - ESLint (flat config) + Prettier
 - Deterministic, seeded demo-data generator (~60 people in 3 crews)
 
