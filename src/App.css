@@ -481,3 +481,45 @@ h3 {
   font-size: 0.95rem;
   color: #1c2129;
 }
+.absences {
+  margin-top: 20px;
+  padding: 12px 16px;
+  border: 1px solid #dfe3ea;
+  border-radius: 8px;
+  background: #fff;
+}
+.absence-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 16px;
+}
+.absence-form .field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.absence-form .btn {
+  margin: 6px 0;
+}
+.field-error {
+  color: #b42318;
+  font-size: 0.8rem;
+  max-width: 260px;
+}
+[aria-invalid='true'] {
+  border-color: #b42318;
+  outline: 1px solid #b42318;
+}
+.absence-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid #eef0f3;
+}
+.sr-status {
+  min-height: 1.2em;
+  margin: 4px 0;
+}

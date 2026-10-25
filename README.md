@@ -66,6 +66,15 @@ glance and get **suggestions** for cover. The planner always makes the final dec
 - **Load demo data / Reset** restores the seeded demo data and discards accepted covers.
 - On a weekend, "This week" means the coming week.
 
+### Absences (Abwesenheiten)
+
+Below the shift view, the planner can add an absence (person, type, from/to inclusive) and remove
+existing ones. The week view updates immediately: affected slots show as `fehlt`, the rule check
+reports warnings/errors and the side panel offers cover suggestions. Input is validated with zod
+(`to >= from`, person exists, no overlapping absence for the same person). Absences are stored in
+this browser's localStorage under the versioned key `shift-planner-demo.absences.v1`; unreadable
+or outdated data falls back to the generated demo data. **Demo zurücksetzen** clears them.
+
 ## Domain rules
 
 **Shifts** (Monday-Friday only, no Sunday or holiday work; a shift belongs to the date it starts):

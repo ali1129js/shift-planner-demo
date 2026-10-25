@@ -25,7 +25,9 @@ describe('line-first shift view', () => {
         name: /Mo\., 26\. Okt\. · Früh 05:45–14:00 · Gruppe \d im Dienst$/,
       }),
     ).toBeInTheDocument();
-    const headings = screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent);
+    const headings = within(screen.getByRole('main'))
+      .getAllByRole('heading', { level: 3 })
+      .map((h) => h.textContent);
     expect(headings).toEqual(['Linie 1', 'Linie 2', 'Linie 3', 'Linie 4']);
     const first = cards()[0];
     if (!first) throw new Error('no card');
@@ -203,7 +205,7 @@ describe('empty slots and cover', () => {
     const accept = screen.getAllByRole('button', { name: / übernehmen$/ })[0];
     if (!accept) throw new Error('no suggestion');
     await user.click(accept);
-    await user.click(screen.getByRole('button', { name: 'Demodaten laden / Zurücksetzen' }));
+    await user.click(screen.getByRole('button', { name: 'Demo zurücksetzen' }));
     expect(screen.queryByRole('complementary')).toBeNull();
     expect(screen.queryByText(/von dir hinzugefügt/)).toBeNull();
   });
@@ -228,7 +230,9 @@ describe('settings', () => {
   it('loads saved names on start and falls back for blank names', () => {
     localStorage.setItem(LINE_NAMES_KEY, JSON.stringify({ '1': 'North', '3': '   ' }));
     render(<App today={TODAY} />);
-    const names = screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent);
+    const names = within(screen.getByRole('main'))
+      .getAllByRole('heading', { level: 3 })
+      .map((h) => h.textContent);
     expect(names).toEqual(['North', 'Linie 2', 'Linie 3', 'Linie 4']);
   });
 });

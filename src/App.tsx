@@ -1,4 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
+import { useAbsences } from './absences';
+import { AbsenceEditor } from './components/AbsenceEditor';
 import { LineCard } from './components/LineCard';
 import { SettingsPanel } from './components/SettingsPanel';
 import { SidePanel } from './components/SidePanel';
@@ -49,7 +51,18 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
   const [weekStart, setWeekStart] = useState(thisWeek);
   const [day, setDay] = useState(isWeekend ? 0 : weekdayIndex(today));
   const [shift, setShift] = useState<ShiftType>('early');
-  const [data, setData] = useState(() => generateDemoData({ referenceDate: thisWeek }));
+  // People are deterministic demo data; absences are editable and persisted per browser.
+  const people = useMemo(() => generateDemoData({ referenceDate: thisWeek }).people, [thisWeek]);
+  const generatedAbsences = useCallback(
+    () => generateDemoData({ referenceDate: thisWeek }).absences,
+    [thisWeek],
+  );
+  const {
+    absences,
+    set: setAbsences,
+    reset: resetAbsences,
+  } = useAbsences(thisWeek, generatedAbsences);
+  const data = useMemo(() => ({ people, absences }), [people, absences]);
   const [accepted, setAccepted] = useState<Assignment[]>([]);
   const [panel, setPanel] = useState<{ line: LineId; role: Role } | null>(null);
   const { names, update, reset: resetNames } = useLineNames();
@@ -81,7 +94,7 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
     setPanel(null);
   };
   const reset = () => {
-    setData(generateDemoData({ referenceDate: thisWeek }));
+    resetAbsences();
     setAccepted([]);
     setPanel(null);
     setWeekStart(thisWeek);
@@ -97,7 +110,7 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
         <div className="topbar-actions">
           <SettingsPanel names={names} onChange={update} onReset={resetNames} />
           <button type="button" className="btn" onClick={reset}>
-            Demodaten laden / Zurücksetzen
+            Demo zurücksetzen
           </button>
         </div>
       </header>
@@ -193,6 +206,15 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
         </main>
       )}
 
+      <AbsenceEditor
+        people={data.people}
+        absences={data.absences}
+        rangeFrom={weekStart}
+        rangeTo={addDays(weekStart, 4)}
+        onAdd={(a) => setAbsences([...data.absences, a])}
+        onRemove={(id) => setAbsences(data.absences.filter((a) => a.id !== id))}
+      />
+
       {panel && view && (
         <SidePanel
           key={`${view.date}|${view.shift}|${panel.line}|${panel.role}`}
@@ -216,8 +238,8 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
           <strong>Hinweis:</strong> {ROTATION_NOTE}
         </p>
         <p>
-          Alle Personen und die Firma sind fiktiv. Änderungen werden vorerst nur im Speicher
-          gehalten.
+          Alle Personen und die Firma sind fiktiv. Abwesenheiten und Liniennamen werden nur in
+          diesem Browser gespeichert; übernommene Vertretungen nur im Speicher.
         </p>
       </footer>
     </div>
