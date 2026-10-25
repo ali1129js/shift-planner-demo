@@ -2,6 +2,7 @@ import { absenceOn } from './availability';
 import { isWorkingDay } from './calendar';
 import { LINE_TARGETS, MECHANICS_PER_SHIFT, ROLE_LABELS } from './constants';
 import { qualificationFor } from './qualifications';
+import { stlOnDuty } from './stl';
 import {
   LINE_IDS,
   type Absence,
@@ -55,7 +56,13 @@ export function checkLine(
   const onLine = forSlot(ctx, date, shift).filter((a) => a.line === line);
 
   // Only assignments by present, qualified people count toward minimums.
-  const counts: Record<Role, number> = { primary: 0, secondary: 0, lineLeader: 0, mechanic: 0 };
+  const counts: Record<Role, number> = {
+    primary: 0,
+    secondary: 0,
+    lineLeader: 0,
+    mechanic: 0,
+    stl: 0,
+  };
   for (const a of onLine) {
     const person = peopleById.get(a.personId);
     const label = ROLE_LABELS[a.role];
@@ -197,6 +204,13 @@ export function checkShift(date: IsoDate, shift: ShiftType, ctx: StaffingContext
       code: 'mechanics-below-ideal',
       message: `${mechanics} Mechanics on shift (ideal ${MECHANICS_PER_SHIFT.ideal}, one per line)`,
     });
+  }
+  // STL check only applies when the data models STLs at all.
+  if (ctx.people.some((p) => p.roles.includes('stl'))) {
+    const stl = stlOnDuty(date, shift, ctx.people, ctx.absences);
+    if (!stl.present) {
+      issues.push({ severity: 'warning', code: 'stl-missing', message: 'No STL on duty' });
+    }
   }
   return summarize(date, shift, issues);
 }

@@ -29,7 +29,10 @@ export const ShiftSchema = z.object({
 });
 export type Shift = z.infer<typeof ShiftSchema>;
 
-export const ROLES = ['primary', 'secondary', 'lineLeader', 'mechanic'] as const;
+/** Roles staffed per line. */
+export const LINE_ROLES = ['primary', 'secondary', 'lineLeader', 'mechanic'] as const;
+/** All roles. The STL (Shift Team Leader) leads a whole crew/shift and is not a line role. */
+export const ROLES = [...LINE_ROLES, 'stl'] as const;
 export const RoleSchema = z.enum(ROLES);
 export type Role = z.infer<typeof RoleSchema>;
 

@@ -6,6 +6,7 @@ export * from './rotation';
 export * from './qualifications';
 export * from './availability';
 export * from './staffing';
+export * from './stl';
 export * from './cover';
 export * from './defaultPlan';
 export * from './demoData';

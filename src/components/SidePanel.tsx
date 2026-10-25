@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   CREWS,
-  ROLES,
+  LINE_ROLES,
   ROLE_LABELS,
   SHIFTS,
   suggestCover,
@@ -139,7 +139,7 @@ export function SidePanel({
       <label className="field">
         Role to cover{' '}
         <select value={role} onChange={(e) => setRole(e.target.value as Role)}>
-          {ROLES.map((r) => (
+          {LINE_ROLES.map((r) => (
             <option key={r} value={r}>
               {ROLE_LABELS[r]}
               {gaps.includes(r) ? ' (gap)' : ''}

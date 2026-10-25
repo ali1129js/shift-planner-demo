@@ -11,6 +11,7 @@ import {
   draftShiftAssignments,
   generateDemoData,
   isWorkingDay,
+  stlOnDuty,
   qualificationFor,
   rotationForWeek,
   shiftForCrew,
@@ -327,15 +328,16 @@ describe('demo data', () => {
       generateDemoData({ referenceDate: ref }),
     );
   });
-  it('creates 66 valid people in 3 crews of 22 (incl. 2 spares) with unique ids and names', () => {
+  it('creates 69 valid people in 3 crews of 23 (incl. 2 spares and 1 STL) with unique ids and names', () => {
     const { people } = generateDemoData({ referenceDate: ref });
-    expect(people).toHaveLength(66);
+    expect(people).toHaveLength(69);
     people.forEach((p) => PersonSchema.parse(p));
-    expect(new Set(people.map((p) => p.id)).size).toBe(66);
-    expect(new Set(people.map((p) => p.name)).size).toBe(66);
+    expect(new Set(people.map((p) => p.id)).size).toBe(69);
+    expect(new Set(people.map((p) => p.name)).size).toBe(69);
     for (const crew of ['crew-1', 'crew-2', 'crew-3']) {
-      expect(people.filter((p) => p.crewId === crew)).toHaveLength(22);
+      expect(people.filter((p) => p.crewId === crew)).toHaveLength(23);
       expect(people.filter((p) => p.crewId === crew && p.spare)).toHaveLength(2);
+      expect(people.filter((p) => p.crewId === crew && p.roles.includes('stl'))).toHaveLength(1);
     }
   });
   it('creates valid absences including several types', () => {
@@ -365,5 +367,50 @@ describe('demo data', () => {
   it('drafts nothing on a weekend', () => {
     const { people, absences } = generateDemoData({ referenceDate: ref });
     expect(draftShiftAssignments('2026-10-31', 'early', people, absences)).toEqual([]);
+  });
+});
+
+describe('STL (Shift Team Leader)', () => {
+  const crew = crewForShift('early', MONDAY);
+  const stl = person('stl', { name: 'Stl Person', crewId: crew, homeRole: 'stl', roles: ['stl'] });
+  const sick: Absence[] = [{ id: 's', personId: 'stl', type: 'sick', from: MONDAY, to: MONDAY }];
+
+  it('finds the STL of the crew on duty', () => {
+    expect(stlOnDuty(MONDAY, 'early', [stl], [])).toMatchObject({
+      stl: { id: 'stl' },
+      present: true,
+    });
+    expect(stlOnDuty(MONDAY, 'late', [stl], []).stl).toBeUndefined();
+  });
+  it('warns (not errors) when the STL is absent', () => {
+    const full = fullShift();
+    const ok = checkShift(MONDAY, 'early', {
+      ...full,
+      people: [...full.people, stl],
+      absences: [],
+    });
+    expect(ok).toMatchObject({ ok: true, warnings: 0 });
+    const r = checkShift(MONDAY, 'early', {
+      ...full,
+      people: [...full.people, stl],
+      absences: sick,
+    });
+    expect(r.issues.find((i) => i.code === 'stl-missing')).toMatchObject({
+      severity: 'warning',
+      message: 'No STL on duty',
+    });
+    expect(r.ok).toBe(true);
+  });
+  it('is never suggested as line cover and not drafted onto a line', () => {
+    const s = suggestCover(
+      { date: MONDAY, shift: 'early', line: '1', role: 'secondary' },
+      { people: [stl], absences: [], assignments: [] },
+    );
+    expect(s).toEqual([]);
+    expect(draftShiftAssignments(MONDAY, 'early', [stl], [])).toEqual([]);
+  });
+  it('demo data has one STL absence in the first week', () => {
+    const { absences } = generateDemoData({ referenceDate: MONDAY });
+    expect(absences.filter((a) => a.personId.startsWith('stl-'))).toHaveLength(1);
   });
 });

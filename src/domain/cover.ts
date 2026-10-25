@@ -43,6 +43,7 @@ export function suggestCover(req: CoverRequest, ctx: CoverContext): CoverSuggest
   const out: CoverSuggestion[] = [];
 
   for (const person of ctx.people) {
+    if (req.role === 'stl' || person.roles.includes('stl')) continue; // STLs never cover lines
     if (!availabilityFor(person, req.date, req.shift, ctx).available) continue;
     const q = qualificationFor(person, req.role, req.line);
     if (q.kind === 'not-qualified') continue;

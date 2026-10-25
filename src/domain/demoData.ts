@@ -158,5 +158,26 @@ export function generateDemoData({ seed = 42, referenceDate }: DemoOptions): Dem
     to: '9999-12-31',
   });
 
+  // One STL (Shift Team Leader) per crew, added last so the line staff above stay unchanged.
+  for (const crewId of CREW_IDS) {
+    people.push({
+      id: `stl-${crewId}`,
+      name: uniqueName(),
+      crewId,
+      homeRole: 'stl',
+      homeLine: '1',
+      roles: ['stl'],
+      lines: ['1'],
+    });
+  }
+  // One short STL absence so "No STL on duty" shows up in the first demo week.
+  absences.push({
+    id: `a${absences.length + 1}`,
+    personId: 'stl-crew-2',
+    type: 'training',
+    from: addDays(start, 3),
+    to: addDays(start, 3),
+  });
+
   return { people, absences };
 }

@@ -25,6 +25,7 @@ export const ROLE_LABELS: Readonly<Record<Role, string>> = {
   primary: 'Primary',
   secondary: 'Secondary',
   lineLeader: 'Line Leader',
+  stl: 'STL',
   mechanic: 'Mechanic',
 };
 

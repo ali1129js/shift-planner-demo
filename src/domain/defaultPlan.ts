@@ -17,6 +17,9 @@ export function draftShiftAssignments(
   if (!isWorkingDay(date, holidays)) return [];
   const crew = crewForShift(shift, date);
   return people
-    .filter((p) => p.crewId === crew && !p.spare && !absenceOn(p.id, date, absences))
+    .filter(
+      (p) =>
+        p.crewId === crew && !p.spare && p.homeRole !== 'stl' && !absenceOn(p.id, date, absences),
+    )
     .map((p) => ({ date, shift, line: p.homeLine, role: p.homeRole, personId: p.id }));
 }

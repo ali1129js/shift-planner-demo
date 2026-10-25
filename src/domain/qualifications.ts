@@ -16,6 +16,9 @@ export function qualificationFor(person: Person, role: Role, line: LineId): Qual
   const onLine = person.lines.includes(line);
   const has = (r: Role) => person.roles.includes(r);
 
+  if (role === 'stl') {
+    return has('stl') ? { kind: 'qualified' } : { kind: 'not-qualified', reason: 'Not an STL' };
+  }
   if (role === 'mechanic') {
     return has('mechanic')
       ? { kind: 'qualified' }
