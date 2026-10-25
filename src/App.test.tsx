@@ -20,7 +20,7 @@ describe('line-first shift view', () => {
     expect(
       screen.getByRole('heading', {
         level: 2,
-        name: /Mon 26 Oct · Early 05:45–14:00 · Crew \d on duty/,
+        name: /Mon 26 Oct · Early 05:45–14:00 · Crew \d on duty · STL: \w+ \w+$/,
       }),
     ).toBeInTheDocument();
     const headings = screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent);
@@ -85,6 +85,21 @@ describe('line-first shift view', () => {
   it('shows the coming week when opened on a Sunday', () => {
     render(<App today="2026-10-25" />);
     expect(screen.getByRole('heading', { name: /Week 44: 26 Oct 2026/ })).toBeInTheDocument();
+  });
+});
+
+describe('STL', () => {
+  it('shows a No STL on duty warning when the crew STL is absent', async () => {
+    const user = userEvent.setup();
+    render(<App today={TODAY} />);
+    for (const chip of chips()) {
+      await user.click(chip);
+      if (screen.queryByText('No STL on duty')) break;
+    }
+    expect(screen.getByText('No STL on duty')).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 2, name: /STL: .+ \(absent\)$/ }),
+    ).toBeInTheDocument();
   });
 });
 

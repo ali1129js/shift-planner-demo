@@ -15,6 +15,7 @@ import {
   addDays,
   generateDemoData,
   mondayOf,
+  stlOnDuty,
   toIsoDate,
   weekdayIndex,
   type Assignment,
@@ -65,6 +66,8 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
     (t, v) => ({ e: t.e + v.report.errors, w: t.w + v.report.warnings }),
     { e: 0, w: 0 },
   );
+  const stl = view ? stlOnDuty(view.date, view.shift, data.people, data.absences) : undefined;
+  const stlText = !stl?.stl ? 'none' : stl.present ? stl.stl.name : `${stl.stl.name} (absent)`;
   const closePanel = useCallback(() => setPanel(null), []);
 
   const goTo = (w: IsoDate) => {
@@ -157,7 +160,7 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
         <main>
           <h2 className="shift-title">
             {dayLabel(date)} · {SHIFTS[shift].label} {SHIFTS[shift].start}–{SHIFTS[shift].end} ·{' '}
-            {crewName(view.crew)} on duty
+            {crewName(view.crew)} on duty · STL: {stlText}
           </h2>
           {shiftLevelIssues(view).length > 0 && (
             <ul className="shift-issues">
