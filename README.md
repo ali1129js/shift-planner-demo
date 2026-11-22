@@ -1,5 +1,7 @@
 # Shift Planner Demo
 
+**Live: https://shift-planner-demo.vercel.app**
+
 A small shift-planning tool for a fictional three-shift production plant,
 **Demo Packaging GmbH**, with four packaging lines (Line 1 - Line 4).
 
@@ -10,13 +12,15 @@ A small shift-planning tool for a fictional three-shift production plant,
 > **Built with AI-assisted development.** The code was written with the help of an AI
 > coding assistant and reviewed, tested and directed by me.
 
-![Planer (deutsche Oberfläche): eine Schicht mit den Karten Linie 1-4, STL-Badge und Wochenstatusleiste](docs/planner.png)
+![Planer (deutsche Oberfläche, helles Design): eine Schicht mit den Karten Linie 1-4, STL-Badge und Wochenstatusleiste](docs/planner.png)
+
+![Planer (deutsche Oberfläche, dunkles Design): dieselbe Ansicht im dunklen Theme](docs/planner-dark.png)
 
 ## Deutsch
 
-Die Oberfläche der App ist auf Deutsch. Ein kleiner Schichtplaner für ein fiktives
-Dreischicht-Werk (**Demo Packaging GmbH**) mit vier Verpackungslinien (Linie 1 bis Linie 4)
-und den Schichten Früh, Spät und Nacht.
+Die Oberfläche der App ist auf Deutsch. Live unter https://shift-planner-demo.vercel.app.
+Ein kleiner Schichtplaner für ein fiktives Dreischicht-Werk (**Demo Packaging GmbH**)
+mit vier Verpackungslinien (Linie 1 bis Linie 4) und den Schichten Früh, Spät und Nacht.
 
 - **Wochenleiste:** 15 Felder (Mo-Fr x Früh/Spät/Nacht) zeigen den Status jeder Schicht
   mit Symbol und Text (✓ OK, ! Warn., ✕ Fehl.). Ein Klick öffnet die Schicht.
@@ -37,11 +41,21 @@ glance and get **suggestions** for cover. The planner always makes the final dec
 
 ## Status
 
-- **Step 1:** domain model, rules, demo data, tests.
-- **Step 2:** line-first planner: one shift at a time with Line 1-4 cards, a week status
-  strip, and a cover panel with ranked suggestions the planner can accept. Accepted covers
-  live in memory only; custom line names live in `localStorage`.
-- Next: browser `localStorage` persistence, deployment.
+The app is deployed. You can inspect a week, record absences, accept cover suggestions
+and rename lines.
+
+**Saved in this browser** (`localStorage`, checked with Zod):
+
+- Absences (`shift-planner-demo.absences.v1`)
+- Accepted covers (`shift-planner-demo.covers.v1`), only the assignment: date, shift, line, role, person id
+- Custom line names
+
+**Not saved:** the selected week and shift (they start at "this week"), and the people
+list (it is seeded demo data). The domain can treat holidays as non-working days, but
+the UI does not pass a holiday list yet.
+
+"Demo zurücksetzen" clears absences and accepted covers and returns to this week.
+Line names have their own reset in Settings.
 
 ## Using the planner
 
@@ -144,7 +158,7 @@ src/domain/
 
 ```bash
 npm install
-npm run dev        # placeholder UI
+npm run dev        # local dev server
 npm test           # unit tests
 npm run lint
 npm run typecheck
