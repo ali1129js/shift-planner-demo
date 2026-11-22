@@ -26,7 +26,7 @@ und den Schichten Früh, Spät und Nacht.
 - **Vertretung:** Ein Klick auf einen Platz öffnet Vertretungsvorschläge. Die App schlägt nur
   vor; die Planerin bzw. der Planer entscheidet mit _Übernehmen_.
 - **Einstellungen → Liniennamen:** nur im `localStorage` dieses Browsers gespeichert.
-- Alle Personen und die Firma sind fiktiv. Übernommene Vertretungen liegen nur im Speicher.
+- Alle Personen und die Firma sind fiktiv. Übernommene Vertretungen werden im `localStorage` dieses Browsers gespeichert (`shift-planner-demo.covers.v1`, nur die Zuordnung: Datum, Schicht, Linie, Rolle, Personen-ID) und mit „Demo zurücksetzen“ gelöscht.
 
 ## Why
 

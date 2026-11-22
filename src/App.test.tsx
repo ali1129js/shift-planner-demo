@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it } from 'vitest';
 import App from './App';
 import { StatusBadge } from './components/StatusBadge';
+import { COVERS_KEY } from './covers';
 import { LINE_NAMES_KEY } from './settings';
 
 const TODAY = '2026-10-26'; // Monday, week 44
@@ -186,6 +187,46 @@ describe('empty slots and cover', () => {
     expect(screen.getByText(/1 Vertretung\(en\) von dir hinzugefügt/)).toBeInTheDocument();
   });
 
+  it('keeps an accepted cover on the line card after a remount and drops the old note', async () => {
+    const user = userEvent.setup();
+    const { unmount } = render(<App today={TODAY} />);
+    const errChip = screen.getAllByRole('button', { name: /: Fehler,/ })[0];
+    if (!errChip) throw new Error('demo data has no error shift');
+    const chipName = (errChip.getAttribute('aria-label') ?? errChip.textContent ?? '').split(
+      ':',
+    )[0];
+    await user.click(errChip);
+    const slot = screen.getAllByRole('button', {
+      name: /: fehlt \(Fehler\)\. Vertretung finden/,
+    })[0];
+    if (!slot) throw new Error('no slot');
+    const role = /^(.+?): fehlt/.exec(slot.getAttribute('aria-label') ?? '')?.[1] ?? '';
+    await user.click(slot);
+    const accept = screen.getAllByRole('button', { name: / übernehmen$/ })[0];
+    if (!accept) throw new Error('no suggestion');
+    const name = /^(.+) als /.exec(accept.getAttribute('aria-label') ?? '')?.[1] ?? '';
+    await user.click(accept);
+    await user.keyboard('{Escape}');
+    expect(screen.queryByText(/noch nicht gespeichert/)).toBeNull();
+    const stored = JSON.parse(localStorage.getItem(COVERS_KEY) ?? '{}');
+    expect(stored).toMatchObject({ version: 1, referenceDate: TODAY });
+    expect(stored.covers).toHaveLength(1);
+    unmount();
+
+    render(<App today={TODAY} />);
+    expect(screen.getByText(/1 Vertretung\(en\) von dir hinzugefügt/)).toBeInTheDocument();
+    const again = screen
+      .getAllByRole('button', { name: /^(Mo|Di|Mi|Do|Fr)\., / })
+      .find((b) =>
+        (b.getAttribute('aria-label') ?? b.textContent ?? '').startsWith(`${chipName}:`),
+      );
+    if (!again) throw new Error(`chip ${chipName} not found`);
+    await user.click(again);
+    expect(
+      screen.getByRole('button', { name: new RegExp(`^${role}: ${name}\\.`) }),
+    ).toBeInTheDocument();
+  });
+
   it('suggests a same-crew spare first', async () => {
     const user = await openFirstErrorShift();
     const slot = screen.getAllByRole('button', { name: /^Sekundär: / })[0];
@@ -205,9 +246,11 @@ describe('empty slots and cover', () => {
     const accept = screen.getAllByRole('button', { name: / übernehmen$/ })[0];
     if (!accept) throw new Error('no suggestion');
     await user.click(accept);
+    expect(localStorage.getItem(COVERS_KEY)).not.toBeNull();
     await user.click(screen.getByRole('button', { name: 'Demo zurücksetzen' }));
     expect(screen.queryByRole('complementary')).toBeNull();
     expect(screen.queryByText(/von dir hinzugefügt/)).toBeNull();
+    expect(localStorage.getItem(COVERS_KEY)).toBeNull();
   });
 });
 

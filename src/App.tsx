@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useAbsences } from './absences';
 import { AbsenceEditor } from './components/AbsenceEditor';
+import { useCovers } from './covers';
 import { LineCard } from './components/LineCard';
 import { SettingsPanel } from './components/SettingsPanel';
 import { SidePanel } from './components/SidePanel';
@@ -24,7 +25,6 @@ import {
   stlOnDuty,
   toIsoDate,
   weekdayIndex,
-  type Assignment,
   type IsoDate,
   type LineId,
   type Role,
@@ -39,13 +39,6 @@ interface Props {
   today?: IsoDate;
 }
 
-const sameAssignment = (a: Assignment, b: Assignment) =>
-  a.date === b.date &&
-  a.shift === b.shift &&
-  a.line === b.line &&
-  a.role === b.role &&
-  a.personId === b.personId;
-
 export default function App({ today = toIsoDate(new Date()) }: Props) {
   const [theme, toggleTheme] = useTheme();
   const isWeekend = weekdayIndex(today) >= 5;
@@ -54,7 +47,7 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
   const [weekStart, setWeekStart] = useState(thisWeek);
   const [day, setDay] = useState(isWeekend ? 0 : weekdayIndex(today));
   const [shift, setShift] = useState<ShiftType>('early');
-  // People are deterministic demo data; absences are editable and persisted per browser.
+  // People are deterministic demo data; absences and accepted covers are persisted per browser.
   const people = useMemo(() => generateDemoData({ referenceDate: thisWeek }).people, [thisWeek]);
   const generatedAbsences = useCallback(
     () => generateDemoData({ referenceDate: thisWeek }).absences,
@@ -66,7 +59,12 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
     reset: resetAbsences,
   } = useAbsences(thisWeek, generatedAbsences);
   const data = useMemo(() => ({ people, absences }), [people, absences]);
-  const [accepted, setAccepted] = useState<Assignment[]>([]);
+  const {
+    covers: accepted,
+    accept: acceptCover,
+    remove: removeCover,
+    reset: resetCovers,
+  } = useCovers(thisWeek, people);
   const [panel, setPanel] = useState<{ line: LineId; role: Role } | null>(null);
   const { names, update, reset: resetNames } = useLineNames();
 
@@ -98,7 +96,7 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
   };
   const reset = () => {
     resetAbsences();
-    setAccepted([]);
+    resetCovers();
     setPanel(null);
     setWeekStart(thisWeek);
   };
@@ -142,8 +140,7 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
       <p className="summary" aria-live="polite">
         <StatusBadge status={chipText(totals.e, totals.w).status} /> Diese Woche: {totals.e} Fehler,{' '}
         {totals.w} Warnungen
-        {accepted.length > 0 &&
-          ` · ${accepted.length} Vertretung(en) von dir hinzugefügt (noch nicht gespeichert)`}
+        {accepted.length > 0 && ` · ${accepted.length} Vertretung(en) von dir hinzugefügt`}
       </p>
 
       <WeekStrip weekStart={weekStart} views={views} selected={{ date, shift }} onSelect={select} />
@@ -229,10 +226,8 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
           people={data.people}
           absences={data.absences}
           accepted={accepted}
-          onAccept={(a) =>
-            setAccepted((prev) => (prev.some((x) => sameAssignment(x, a)) ? prev : [...prev, a]))
-          }
-          onRemove={(a) => setAccepted((prev) => prev.filter((x) => !sameAssignment(x, a)))}
+          onAccept={acceptCover}
+          onRemove={removeCover}
           onClose={closePanel}
         />
       )}
@@ -242,8 +237,8 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
           <strong>Hinweis:</strong> {ROTATION_NOTE}
         </p>
         <p>
-          Alle Personen und die Firma sind fiktiv. Abwesenheiten und Liniennamen werden nur in
-          diesem Browser gespeichert; übernommene Vertretungen nur im Speicher.
+          Alle Personen und die Firma sind fiktiv. Abwesenheiten, übernommene Vertretungen und
+          Liniennamen werden nur in diesem Browser gespeichert.
         </p>
       </footer>
     </div>
