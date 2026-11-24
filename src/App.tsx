@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useAbsences } from './absences';
 import { AbsenceEditor } from './components/AbsenceEditor';
+import { ConfirmDialog } from './components/ConfirmDialog';
 import { useCovers } from './covers';
 import { LineCard } from './components/LineCard';
 import { SettingsPanel } from './components/SettingsPanel';
@@ -66,6 +67,7 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
     reset: resetCovers,
   } = useCovers(thisWeek, people);
   const [panel, setPanel] = useState<{ line: LineId; role: Role } | null>(null);
+  const [confirmReset, setConfirmReset] = useState(false);
   const { names, update, reset: resetNames } = useLineNames();
 
   const views = useMemo(
@@ -111,11 +113,23 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
         <div className="topbar-actions">
           <ThemeToggle theme={theme} onToggle={toggleTheme} />
           <SettingsPanel names={names} onChange={update} onReset={resetNames} />
-          <button type="button" className="btn" onClick={reset}>
+          <button type="button" className="btn" onClick={() => setConfirmReset(true)}>
             Demo zurücksetzen
           </button>
         </div>
       </header>
+      {confirmReset ? (
+        <ConfirmDialog
+          title="Demo zurücksetzen?"
+          message="Abwesenheiten werden auf die Demo-Daten zurückgesetzt, übernommene Vertretungen gehen verloren, und die Ansicht springt zu dieser Woche. Das lässt sich nicht rückgängig machen."
+          confirmLabel="Zurücksetzen"
+          onCancel={() => setConfirmReset(false)}
+          onConfirm={() => {
+            reset();
+            setConfirmReset(false);
+          }}
+        />
+      ) : null}
 
       <nav className="weeknav" aria-label="Wochennavigation">
         <button type="button" className="btn" onClick={() => goTo(addDays(weekStart, -7))}>

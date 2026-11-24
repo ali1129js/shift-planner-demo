@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it } from 'vitest';
 import App from './App';
@@ -248,9 +248,73 @@ describe('empty slots and cover', () => {
     await user.click(accept);
     expect(localStorage.getItem(COVERS_KEY)).not.toBeNull();
     await user.click(screen.getByRole('button', { name: 'Demo zurücksetzen' }));
+    expect(screen.getByRole('button', { name: 'Abbrechen' })).toHaveFocus();
+    await user.click(screen.getByRole('button', { name: 'Zurücksetzen' }));
     expect(screen.queryByRole('complementary')).toBeNull();
     expect(screen.queryByText(/von dir hinzugefügt/)).toBeNull();
     expect(localStorage.getItem(COVERS_KEY)).toBeNull();
+  });
+});
+
+describe('demo reset confirmation', () => {
+  async function acceptACover() {
+    const user = userEvent.setup();
+    render(<App today={TODAY} />);
+    const errChip = screen.getAllByRole('button', { name: /: Fehler,/ })[0];
+    if (!errChip) throw new Error('demo data has no error shift');
+    await user.click(errChip);
+    const slot = screen.getAllByRole('button', { name: /Vertretung finden/ })[0];
+    if (!slot) throw new Error('no slot');
+    await user.click(slot);
+    const accept = screen.getAllByRole('button', { name: / übernehmen$/ })[0];
+    if (!accept) throw new Error('no suggestion');
+    await user.click(accept);
+    expect(screen.getByText(/von dir hinzugefügt/)).toBeInTheDocument();
+    return user;
+  }
+
+  it('cancel and Escape leave absences, covers and the week unchanged', async () => {
+    const user = await acceptACover();
+    await user.click(screen.getByRole('button', { name: /Nächste Woche/ }));
+    expect(screen.getByRole('heading', { level: 2, name: /KW 45/ })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Demo zurücksetzen' }));
+    expect(screen.getByRole('dialog', { name: 'Demo zurücksetzen?' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Abbrechen' })).toHaveFocus();
+    await user.click(screen.getByRole('button', { name: 'Abbrechen' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.getByText(/von dir hinzugefügt/)).toBeInTheDocument();
+    expect(localStorage.getItem(COVERS_KEY)).not.toBeNull();
+    expect(screen.getByRole('heading', { level: 2, name: /KW 45/ })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Demo zurücksetzen' }));
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.getByText(/von dir hinzugefügt/)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: /KW 45/ })).toBeInTheDocument();
+  });
+
+  it('backdrop click cancels the reset', async () => {
+    const user = await acceptACover();
+    await user.click(screen.getByRole('button', { name: 'Demo zurücksetzen' }));
+    const dialog = screen.getByRole('dialog', { name: 'Demo zurücksetzen?' });
+    fireEvent.click(dialog);
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.getByText(/von dir hinzugefügt/)).toBeInTheDocument();
+  });
+
+  it('confirm restores demo absences, drops covers and returns to this week', async () => {
+    const user = await acceptACover();
+    await user.click(screen.getByRole('button', { name: /Nächste Woche/ }));
+    expect(screen.getByRole('heading', { level: 2, name: /KW 45/ })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Demo zurücksetzen' }));
+    await user.click(screen.getByRole('button', { name: 'Zurücksetzen' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.queryByText(/von dir hinzugefügt/)).toBeNull();
+    expect(localStorage.getItem(COVERS_KEY)).toBeNull();
+    expect(screen.getByRole('heading', { level: 2, name: /KW 44/ })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Diese Woche' })).toBeDisabled();
   });
 });
 

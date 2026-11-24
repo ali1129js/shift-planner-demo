@@ -582,3 +582,29 @@ textarea {
   border: 1px solid var(--border-strong);
   border-radius: 4px;
 }
+
+.confirm {
+  border: 1px solid var(--border, #c6c2b6);
+  border-radius: 12px;
+  padding: 1.25rem 1.4rem;
+  max-width: 28rem;
+  background: var(--surface, #fff);
+  color: inherit;
+  box-shadow: 0 16px 40px rgb(0 0 0 / 0.2);
+}
+.confirm::backdrop {
+  background: rgb(0 0 0 / 0.45);
+}
+.confirm h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+}
+.confirm p {
+  margin: 0 0 1rem;
+}
+.confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: flex-end;
+}

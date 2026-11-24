@@ -133,6 +133,8 @@ describe('absence editor', () => {
     render(<App today={TODAY} />);
     const user = await addAbsence(lead.id, TODAY, TODAY);
     await user.click(screen.getByRole('button', { name: 'Demo zurücksetzen' }));
+    expect(screen.getByRole('button', { name: 'Abbrechen' })).toHaveFocus();
+    await user.click(screen.getByRole('button', { name: 'Zurücksetzen' }));
     expect(localStorage.getItem(ABSENCES_KEY)).toBeNull();
     expect(
       within(card('Linie 1')).queryByRole('button', { name: /^Linienleiter: fehlt/ }),
