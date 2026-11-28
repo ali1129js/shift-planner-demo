@@ -16,6 +16,13 @@ const fmtYear = new Intl.DateTimeFormat('de-DE', {
 export const dayLabel = (d: string) => fmt.format(parseIsoDate(d));
 export const longDate = (d: string) => fmtYear.format(parseIsoDate(d));
 
+/** ISO-8601 week-numbering year (the year of the Thursday in that week). */
+export function isoWeekYear(d: string): number {
+  const date = parseIsoDate(d);
+  date.setUTCDate(date.getUTCDate() + 3 - ((date.getUTCDay() + 6) % 7));
+  return date.getUTCFullYear();
+}
+
 /** ISO-8601 week number. */
 export function isoWeek(d: string): number {
   const date = parseIsoDate(d);

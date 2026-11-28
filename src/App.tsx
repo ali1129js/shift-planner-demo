@@ -34,6 +34,7 @@ import {
   type Role,
   type ShiftType,
 } from './domain';
+import { downloadTextFile, weekExportFilename, weekToCsv } from './exportWeek';
 import { buildWeek, chipText, shiftLevelIssues, weekDates } from './planner';
 import { useLineNames } from './settings';
 import { usePlantState } from './location';
@@ -116,6 +117,13 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
     setWeekStart(thisWeek);
   };
 
+  const exportWeek = () => {
+    downloadTextFile(
+      weekExportFilename(weekStart),
+      weekToCsv(views, peopleById, accepted, lineName),
+    );
+  };
+
   return (
     <div className="app">
       <header className="topbar">
@@ -164,6 +172,14 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
         </button>
         <button type="button" className="btn" onClick={() => goTo(addDays(weekStart, 7))}>
           Nächste Woche →
+        </button>
+        <button
+          type="button"
+          className="btn"
+          onClick={exportWeek}
+          aria-label={`Aktuelle Woche KW ${isoWeek(weekStart)} als CSV herunterladen`}
+        >
+          Woche als CSV
         </button>
         <h2 className="weeklabel" aria-live="polite">
           KW {isoWeek(weekStart)}: {longDate(weekStart)} – {longDate(addDays(weekStart, 4))}

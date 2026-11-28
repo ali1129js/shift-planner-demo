@@ -25,3 +25,11 @@ A suggestion is not a decision. The app can rank options, but it cannot know abo
 That keeps the domain honest: rules and ranks are testable, and the human still owns the roster.
 
 See `src/components/SidePanel.tsx` and how `App.tsx` calls `acceptCover`.
+
+## Exporting the week as CSV
+
+The planner can take the visible Monday–Friday out of the browser as a CSV. The row builder is a pure function: it walks the same `ShiftView`s the cards use, writes one row per role slot (shift, line, role, person, status) and marks accepted covers with `Vertretung=ja`. Empty slots stay in the file with an empty person and status `offen`, so a gap is visible without a screenshot. Holiday dates become a single `Feiertag` row instead of three empty shifts.
+
+The filename uses the ISO week of that Monday (`schichtplan-2026-W44.csv`). Tests cover the row builder, the empty-slot case and the filename, not the browser's file picker.
+
+See `src/exportWeek.ts` and the button in `src/App.tsx`.
