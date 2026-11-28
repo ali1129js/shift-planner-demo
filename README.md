@@ -59,6 +59,11 @@ Line names have their own reset in Settings.
 
 ## Using the planner
 
+- **Public holidays:** the fictional plant sits in a Bundesland (picker above the summary,
+  default Nordrhein-Westfalen, stored in this browser). Statutory holidays of that state are
+  applied to the visible weeks: the strip shows "Feiertag", the shift view says so, no
+  assignments are generated and no staffing errors appear. Rules and the "as of" date
+  (28.11.2026) are in `src/domain/holidays.ts`; municipality-only holidays are not modelled.
 - **Themes and motion:** the _Design_ selector offers Khaki (light), Graphit and Mitternacht
   (both dark). Without a stored choice the system colour scheme decides (Khaki or Graphit).
   Older stored values migrate: `light` becomes Khaki, `dark` becomes Graphit. _Bewegung_ is off

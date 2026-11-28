@@ -356,3 +356,45 @@ describe('StatusBadge', () => {
     );
   });
 });
+
+describe('public holidays (fictional plant location)', () => {
+  // Thursday 4 June 2026 is Fronleichnam in Nordrhein-Westfalen (the default) but not in Berlin.
+  const HOLIDAY_WEEK = '2026-06-01';
+  const thursday = () =>
+    within(screen.getByRole('group', { name: 'Tag' })).getByRole('button', { name: /^Do\., 04\./ });
+
+  it('marks a mid-week Feiertag as non-working: no cards, no staffing errors', async () => {
+    render(<App today={HOLIDAY_WEEK} />);
+    expect(screen.getByLabelText(/Standort des fiktiven Werks/)).toHaveValue('NW');
+    const holidayChips = screen.getAllByRole('button', {
+      name: /Feiertag Fronleichnam, keine Schicht/,
+    });
+    expect(holidayChips).toHaveLength(3); // Früh, Spät, Nacht
+    await userEvent.click(thursday());
+    expect(
+      screen.getByRole('heading', { level: 2, name: /Feiertag: Fronleichnam/ }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { level: 3, name: 'Linie 1' })).toBeNull();
+    // The other days are still planned.
+    expect(
+      screen.getAllByRole('button', { name: /^Mi\., 03\. Jun.*: (OK|Warnung|Fehler)/ }).length,
+    ).toBe(3);
+  });
+
+  it('switching the Bundesland changes which days are holidays and persists the choice', async () => {
+    render(<App today={HOLIDAY_WEEK} />);
+    expect(screen.getAllByRole('button', { name: /Feiertag Fronleichnam/ })).toHaveLength(3);
+    await userEvent.selectOptions(screen.getByLabelText(/Standort des fiktiven Werks/), 'BE');
+    expect(screen.queryAllByRole('button', { name: /Feiertag/ })).toHaveLength(0);
+    expect(localStorage.getItem('shift-planner-demo.state')).toBe('BE');
+    await userEvent.selectOptions(screen.getByLabelText(/Standort des fiktiven Werks/), 'BY');
+    expect(screen.getAllByRole('button', { name: /Feiertag Fronleichnam/ })).toHaveLength(3);
+  });
+
+  it('shows sources and the as-of date next to the data', () => {
+    render(<App today={HOLIDAY_WEEK} />);
+    expect(screen.getByText(/Standard: Nordrhein-Westfalen/)).toHaveTextContent(
+      /Stand 28\.11\.2026/,
+    );
+  });
+});

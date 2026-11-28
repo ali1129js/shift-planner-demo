@@ -3,6 +3,7 @@ import { useAbsences } from './absences';
 import { AbsenceEditor } from './components/AbsenceEditor';
 import { ConfirmDialog } from './components/ConfirmDialog';
 import { useCovers } from './covers';
+import { PlantLocation } from './components/PlantLocation';
 import { LineCard } from './components/LineCard';
 import { SettingsPanel } from './components/SettingsPanel';
 import { SidePanel } from './components/SidePanel';
@@ -22,7 +23,9 @@ import {
   SHIFT_TYPES,
   addDays,
   generateDemoData,
+  holidayMap,
   mondayOf,
+  stateName,
   stlOnDuty,
   toIsoDate,
   weekdayIndex,
@@ -33,6 +36,7 @@ import {
 } from './domain';
 import { buildWeek, chipText, shiftLevelIssues, weekDates } from './planner';
 import { useLineNames } from './settings';
+import { usePlantState } from './location';
 import './App.css';
 
 interface Props {
@@ -70,10 +74,15 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
   const [panel, setPanel] = useState<{ line: LineId; role: Role } | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
   const { names, update, reset: resetNames } = useLineNames();
+  const [plantState, setPlantState] = usePlantState();
 
+  const holidays = useMemo(
+    () => holidayMap(plantState, weekStart, addDays(weekStart, 4)),
+    [plantState, weekStart],
+  );
   const views = useMemo(
-    () => buildWeek(weekStart, data.people, data.absences, accepted),
-    [weekStart, data, accepted],
+    () => buildWeek(weekStart, data.people, data.absences, accepted, holidays),
+    [weekStart, data, accepted, holidays],
   );
   const peopleById = useMemo(() => new Map(data.people.map((p) => [p.id, p])), [data]);
   const dates = weekDates(weekStart);
@@ -85,7 +94,10 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
     (t, v) => ({ e: t.e + v.report.errors, w: t.w + v.report.warnings }),
     { e: 0, w: 0 },
   );
-  const stl = view ? stlOnDuty(view.date, view.shift, data.people, data.absences) : undefined;
+  const stl =
+    view && !view.holiday
+      ? stlOnDuty(view.date, view.shift, data.people, data.absences)
+      : undefined;
   const closePanel = useCallback(() => setPanel(null), []);
 
   const goTo = (w: IsoDate) => {
@@ -158,6 +170,14 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
         </h2>
       </nav>
 
+      <PlantLocation
+        state={plantState}
+        onChange={(st) => {
+          setPlantState(st);
+          setPanel(null);
+        }}
+      />
+
       <p className="summary" aria-live="polite">
         <StatusBadge status={chipText(totals.e, totals.w).status} /> Diese Woche: {totals.e} Fehler,{' '}
         {totals.w} Warnungen
@@ -194,7 +214,19 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
         ))}
       </div>
 
-      {view && (
+      {view?.holiday && (
+        <main className="shift-area shift-holiday" data-shift={shift}>
+          <h2 className="shift-title">
+            {dayLabel(date)} · Feiertag: {view.holiday}
+          </h2>
+          <p>
+            Am Standort {stateName(plantState)} ist dieser Tag ein gesetzlicher Feiertag. Es läuft
+            keine Schicht, es werden keine Einteilungen erzeugt und es gibt keine Besetzungsfehler.
+          </p>
+        </main>
+      )}
+
+      {view && !view.holiday && (
         <main className={`shift-area shift-${shift}`} data-shift={shift}>
           <div className="shift-heading">
             <h2 className="shift-title">
@@ -237,7 +269,7 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
         onRemove={(id) => setAbsences(data.absences.filter((a) => a.id !== id))}
       />
 
-      {panel && view && (
+      {panel && view && !view.holiday && (
         <SidePanel
           key={`${view.date}|${view.shift}|${panel.line}|${panel.role}`}
           view={view}

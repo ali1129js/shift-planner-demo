@@ -28,8 +28,23 @@ export function WeekStrip({ weekStart, views, selected, onSelect }: Props) {
           {dates.map((date) => {
             const v = views.find((x) => x.date === date && x.shift === shift);
             if (!v) return <span key={date} />;
-            const c = chipText(v.report.errors, v.report.warnings);
             const isSel = selected.date === date && selected.shift === shift;
+            if (v.holiday) {
+              return (
+                <button
+                  key={date}
+                  type="button"
+                  className={`chip chip-holiday${isSel ? ' chip-selected' : ''}`}
+                  aria-pressed={isSel}
+                  aria-label={`${dayLabel(date)} ${SHIFTS[shift].label}: Feiertag ${v.holiday}, keine Schicht`}
+                  title={v.holiday}
+                  onClick={() => onSelect(date, shift)}
+                >
+                  <span aria-hidden="true">–</span> Feiertag
+                </button>
+              );
+            }
+            const c = chipText(v.report.errors, v.report.warnings);
             return (
               <button
                 key={date}

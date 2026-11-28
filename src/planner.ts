@@ -25,6 +25,8 @@ export interface ShiftView {
   crew: CrewId;
   assignments: Assignment[];
   report: ShiftReport;
+  /** Name of the public holiday when the shift does not run. */
+  holiday?: string;
 }
 
 export function weekDates(weekStart: IsoDate): IsoDate[] {
@@ -44,17 +46,24 @@ export function buildShiftView(
   people: readonly Person[],
   absences: readonly Absence[],
   accepted: readonly Assignment[],
+  holidays: ReadonlyMap<IsoDate, string> = new Map(),
 ): ShiftView {
-  const assignments = [
-    ...draftShiftAssignments(date, shift, people, absences),
-    ...accepted.filter((a) => a.date === date && a.shift === shift),
-  ];
+  const holiday = holidays.get(date);
+  const holidayList = holiday ? [date] : [];
+  // No shift runs on a holiday: nothing is drafted and accepted covers are not applied.
+  const assignments = holiday
+    ? []
+    : [
+        ...draftShiftAssignments(date, shift, people, absences),
+        ...accepted.filter((a) => a.date === date && a.shift === shift),
+      ];
   return {
     date,
     shift,
     crew: crewForShift(shift, date),
     assignments,
-    report: checkShift(date, shift, { people, absences, assignments }),
+    report: checkShift(date, shift, { people, absences, assignments, holidays: holidayList }),
+    ...(holiday ? { holiday } : {}),
   };
 }
 
@@ -63,9 +72,10 @@ export function buildWeek(
   people: readonly Person[],
   absences: readonly Absence[],
   accepted: readonly Assignment[],
+  holidays: ReadonlyMap<IsoDate, string> = new Map(),
 ): ShiftView[] {
   return weekDates(weekStart).flatMap((date) =>
-    SHIFT_TYPES.map((shift) => buildShiftView(date, shift, people, absences, accepted)),
+    SHIFT_TYPES.map((shift) => buildShiftView(date, shift, people, absences, accepted, holidays)),
   );
 }
 

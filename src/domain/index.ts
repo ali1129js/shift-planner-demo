@@ -2,6 +2,7 @@ export * from './schemas';
 export * from './constants';
 export * from './dates';
 export * from './calendar';
+export * from './holidays';
 export * from './rotation';
 export * from './qualifications';
 export * from './availability';
