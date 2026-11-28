@@ -12,9 +12,9 @@ A small shift-planning tool for a fictional three-shift production plant,
 > **Built with AI-assisted development.** The code was written with the help of an AI
 > coding assistant and reviewed, tested and directed by me.
 
-![Planer (deutsche Oberfläche, helles Design): eine Schicht mit den Karten Linie 1-4, STL-Badge und Wochenstatusleiste](docs/planner.png)
+![Planer (deutsche Oberfläche, Design Khaki): eine Schicht mit den Karten Linie 1-4, STL-Badge und Wochenstatusleiste](docs/planner.png)
 
-![Planer (deutsche Oberfläche, dunkles Design): dieselbe Ansicht im dunklen Theme](docs/planner-dark.png)
+![Planer (deutsche Oberfläche, Design Graphit): dieselbe Ansicht im dunklen Theme](docs/planner-dark.png)
 
 ## Deutsch
 
@@ -59,6 +59,14 @@ Line names have their own reset in Settings.
 
 ## Using the planner
 
+- **Themes and motion:** the _Design_ selector offers Khaki (light), Graphit and Mitternacht
+  (both dark). Without a stored choice the system colour scheme decides (Khaki or Graphit).
+  Older stored values migrate: `light` becomes Khaki, `dark` becomes Graphit. _Bewegung_ is off
+  by default; switching it on adds a slow background drift, and `prefers-reduced-motion` always
+  forces it off. Token values live in `src/theme/colors.ts`; tests check WCAG AA contrast for
+  every text/background pair (including shift tints) and 3:1 for control borders, that
+  `App.css` matches the tokens, and that the no-flash script in `index.html` agrees with
+  `resolveTheme`.
 - **Week strip:** 15 small chips (Mon-Fri x Early/Late/Night) show each shift's status with an
   icon and text (✓ OK, ! warn, ✕ err). Click a chip to open that shift. A one-line summary
   shows the week's total errors and warnings.

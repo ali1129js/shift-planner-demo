@@ -1,58 +1,119 @@
-/* Themes: set via <html data-theme="light|dark">. Light is the fallback. */
+/* Themes: <html data-theme="khaki|graphite|midnight">. Khaki is the fallback.
+   Hex values mirror src/theme/colors.ts (a test fails on drift). */
 :root,
-:root[data-theme='light'] {
+:root[data-theme='khaki'] {
   color-scheme: light;
-  --bg: #f4f6f9;
-  --surface: #ffffff;
-  --slot-bg: #f1f4f8;
-  --text: #1c2129;
-  --muted: #545c69;
-  --line: #d4d8de;
-  --line-soft: #eef0f3;
-  --border-strong: #9aa3af;
-  --accent: #1f4fbf;
-  --tag-bg: #e6ecfb;
+  --bg: #d8cdae;
+  --surface: #ebe4d0;
+  --slot-bg: #e0d7ba;
+  --text: #2a2418;
+  --muted: #554c3e;
+  --line: #b8ac8e;
+  --line-soft: #d9d0b6;
+  --border-strong: #6f6550;
+  --accent: #214bb3;
+  --tag-bg: #d3d9ee;
   --on-inverse: #ffffff;
-  --shadow: rgba(0, 0, 0, 0.1);
-  --ok: #1b6e3a;
-  --ok-bg: #e3f4e8;
-  --warn: #8a5300;
-  --warn-bg: #fff1d6;
-  --err: #b0202a;
-  --err-bg: #fde4e4;
-  --early-tint: #e8f6ec;
-  --early-edge: #9fcfae;
-  --late-tint: #fff6d6;
-  --late-edge: #e6cc7a;
-  --night-tint: #fde8e8;
-  --night-edge: #e3a9a9;
+  --ok: #00624a;
+  --ok-bg: #d2e6d6;
+  --warn: #7a4a00;
+  --warn-bg: #f1e0b2;
+  --err: #9f2235;
+  --err-bg: #f0d3ca;
+  --early-tint: #dbe9d1;
+  --early-edge: #8fae88;
+  --late-tint: #f1e7b6;
+  --late-edge: #bfa84e;
+  --night-tint: #eed5cb;
+  --night-edge: #b98a7e;
 }
-:root[data-theme='dark'] {
+:root[data-theme='graphite'] {
   color-scheme: dark;
-  --bg: #0f1318;
-  --surface: #1a2029;
-  --slot-bg: #242c37;
-  --text: #e6eaf0;
-  --muted: #a3adbb;
-  --line: #333d4a;
-  --line-soft: #2a323d;
-  --border-strong: #5a6676;
-  --accent: #7ea6ff;
-  --tag-bg: #22304d;
-  --on-inverse: #0f1318;
-  --shadow: rgba(0, 0, 0, 0.5);
+  --bg: #1e2329;
+  --surface: #2a313a;
+  --slot-bg: #343d48;
+  --text: #e8ecf1;
+  --muted: #a7b0bc;
+  --line: #3a4350;
+  --line-soft: #323a45;
+  --border-strong: #707a8a;
+  --accent: #8daeff;
+  --tag-bg: #26365a;
+  --on-inverse: #1e2329;
   --ok: #6fdc95;
-  --ok-bg: #12301f;
+  --ok-bg: #173326;
   --warn: #ffc15e;
-  --warn-bg: #3a2a0c;
-  --err: #ff8a8a;
-  --err-bg: #3d1517;
-  --early-tint: #13261b;
-  --early-edge: #2f6b45;
-  --late-tint: #2a2410;
-  --late-edge: #7a6424;
-  --night-tint: #2d1517;
-  --night-edge: #7a3438;
+  --warn-bg: #3a2c10;
+  --err: #ff9a9a;
+  --err-bg: #3d1b1f;
+  --early-tint: #1f3a2b;
+  --early-edge: #3f7a58;
+  --late-tint: #3a3317;
+  --late-edge: #8a7530;
+  --night-tint: #3b2326;
+  --night-edge: #8a4a50;
+}
+:root[data-theme='midnight'] {
+  color-scheme: dark;
+  --bg: #1b1428;
+  --surface: #2a2238;
+  --slot-bg: #352c46;
+  --text: #ede7f6;
+  --muted: #c9c2d6;
+  --line: #4a4060;
+  --line-soft: #3a3050;
+  --border-strong: #7a7288;
+  --accent: #a9c0ff;
+  --tag-bg: #2f3560;
+  --on-inverse: #1b1428;
+  --ok: #7be0a0;
+  --ok-bg: #183327;
+  --warn: #ffc66b;
+  --warn-bg: #3b2d14;
+  --err: #ffa3a3;
+  --err-bg: #3f1c26;
+  --early-tint: #223b33;
+  --early-edge: #43806a;
+  --late-tint: #3b3419;
+  --late-edge: #8d7832;
+  --night-tint: #3d2430;
+  --night-edge: #8c4d5e;
+}
+
+/* Motion: static by default. Animated adds a slow background drift,
+   and prefers-reduced-motion always wins. */
+:root[data-motion='animated'] body {
+  background-image: linear-gradient(
+    125deg,
+    var(--bg) 0%,
+    var(--surface) 40%,
+    var(--slot-bg) 60%,
+    var(--bg) 100%
+  );
+  background-size: 260% 260%;
+  animation: gloss-drift 36s ease-in-out infinite;
+}
+@keyframes gloss-drift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-motion='animated'] body {
+    animation: none;
+    background-image: none;
+  }
+}
+.theme-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--muted);
 }
 :root {
   font-family:
@@ -91,6 +152,7 @@ h3 {
 }
 .topbar {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
@@ -235,8 +297,10 @@ h3 {
 }
 .topbar-actions {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 8px;
-  align-items: start;
+  align-items: center;
 }
 .settings {
   position: relative;
@@ -607,4 +671,20 @@ textarea {
   flex-wrap: wrap;
   gap: 0.6rem;
   justify-content: flex-end;
+}
+
+/* 390 px: the week strip must fit without sideways scrolling. */
+@media (max-width: 560px) {
+  .strip {
+    grid-template-columns: 54px repeat(5, minmax(0, 1fr));
+    gap: 3px;
+    font-size: 0.7rem;
+  }
+  .strip-shift {
+    overflow-wrap: anywhere;
+  }
+  .chip {
+    padding: 3px 1px;
+    min-width: 0;
+  }
 }

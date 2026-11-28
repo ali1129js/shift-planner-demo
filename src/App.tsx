@@ -11,7 +11,7 @@ import { StlBadge } from './components/StlBadge';
 import { SHIFT_ICONS } from './components/shiftIcons';
 import { ThemeToggle } from './components/ThemeToggle';
 import { WeekStrip } from './components/WeekStrip';
-import { useTheme } from './theme/theme';
+import { useMotion, useTheme } from './theme/theme';
 import { dayLabel, isoWeek, longDate } from './components/format';
 import {
   COMPANY_NAME,
@@ -41,7 +41,8 @@ interface Props {
 }
 
 export default function App({ today = toIsoDate(new Date()) }: Props) {
-  const [theme, toggleTheme] = useTheme();
+  const [theme, chooseTheme] = useTheme();
+  const [motion, toggleMotion, reducedMotion] = useMotion();
   const isWeekend = weekdayIndex(today) >= 5;
   // On weekends there is no work, so "this week" means the coming week.
   const thisWeek = isWeekend ? mondayOf(addDays(today, 7)) : mondayOf(today);
@@ -111,7 +112,13 @@ export default function App({ today = toIsoDate(new Date()) }: Props) {
           <p className="sub">{COMPANY_NAME} · fiktive Demodaten</p>
         </div>
         <div className="topbar-actions">
-          <ThemeToggle theme={theme} onToggle={toggleTheme} />
+          <ThemeToggle
+            theme={theme}
+            onTheme={chooseTheme}
+            motion={motion}
+            reducedMotion={reducedMotion}
+            onMotion={toggleMotion}
+          />
           <SettingsPanel names={names} onChange={update} onReset={resetNames} />
           <button type="button" className="btn" onClick={() => setConfirmReset(true)}>
             Demo zurücksetzen

@@ -4,11 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script>
+      // Mirrors resolveTheme / applyMotion in src/theme/theme.ts (src/theme/noflash.test.ts checks it).
       try {
         var t = localStorage.getItem('shift-planner.theme');
-        if (t !== 'light' && t !== 'dark')
-          t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        if (t === 'light') t = 'khaki';
+        else if (t === 'dark') t = 'graphite';
+        else if (t !== 'khaki' && t !== 'graphite' && t !== 'midnight')
+          t = matchMedia('(prefers-color-scheme: dark)').matches ? 'graphite' : 'khaki';
         document.documentElement.dataset.theme = t;
+        var m = localStorage.getItem('shift-planner.motion') === 'animated';
+        document.documentElement.dataset.motion =
+          m && !matchMedia('(prefers-reduced-motion: reduce)').matches ? 'animated' : 'static';
       } catch (e) {}
     </script>
     <title>Schichtplaner Demo</title>
